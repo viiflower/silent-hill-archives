@@ -15,20 +15,21 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false } 
+  ssl: { rejectUnauthorized: false }
 });
 
 app.get('/', (req, res) => {
-  res.send("SERVIDOR DE SILENT HILL ACTIVO - SISTEMA ONLINE");
+  res.send("SERVIDOR DE SILENT HILL ACTIVO - MAYUS_PROTOCOL_ENABLED");
 });
 
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
+  const upperUser = username.toUpperCase();
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
-      [username, hashedPassword]
+      [upperUser, hashedPassword]
     );
     res.status(200).json(result.rows[0]);
   } catch (err) {
@@ -39,8 +40,9 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
+  const upperUser = username.toUpperCase(); 
   try {
-    const result = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+    const result = await pool.query("SELECT * FROM users WHERE username = $1", [upperUser]);
     if (result.rows.length > 0) {
       const user = result.rows[0];
       const match = await bcrypt.compare(password, user.password);
@@ -76,6 +78,30 @@ app.post("/api/characters", async (req, res) => {
   }
 });
 
+app.put("/api/characters/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, status, description, image } = req.body;
+  try {
+    await pool.query(
+      "UPDATE characters SET name=$1, status=$2, description=$3, image=$4 WHERE char_id=$5",
+      [name, status, description, image, id]
+    );
+    res.json({ message: "PERSONAJE_ACTUALIZADO" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/characters/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM characters WHERE char_id = $1", [id]);
+    res.json({ message: "PERSONAJE_ELIMINADO" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/monsters", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM monsters ORDER BY monster_id DESC");
@@ -86,13 +112,37 @@ app.get("/api/monsters", async (req, res) => {
 });
 
 app.post("/api/monsters", async (req, res) => {
-  const { name, status, description, image } = req.body; 
+  const { name, status, description, image } = req.body;
   try {
     const result = await pool.query(
       "INSERT INTO monsters (name, danger, description, image) VALUES ($1, $2, $3, $4) RETURNING *",
       [name, status, description, image]
     );
     res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/api/monsters/:id", async (req, res) => {
+  const { id } = req.params;
+  const { name, status, description, image } = req.body;
+  try {
+    await pool.query(
+      "UPDATE monsters SET name=$1, danger=$2, description=$3, image=$4 WHERE monster_id=$5",
+      [name, status, description, image, id]
+    );
+    res.json({ message: "MONSTRUO_ACTUALIZADO" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/monsters/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await pool.query("DELETE FROM monsters WHERE monster_id = $1", [id]);
+    res.json({ message: "MONSTRUO_ELIMINADO" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
