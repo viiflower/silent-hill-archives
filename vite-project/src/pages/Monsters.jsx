@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import monstersBg from "../assets/silenthillhellmosnter.gif"; 
+
 export default function Monsters() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [monsters, setMonsters] = useState([]); 
@@ -10,7 +11,7 @@ export default function Monsters() {
 
   const fetchMonsters = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/monsters"); 
+      const res = await fetch("https://silent-hill-archives.onrender.com/api/monsters"); 
       const data = await res.json();
       setMonsters(data);
     } catch (error) {
@@ -48,8 +49,8 @@ export default function Monsters() {
     
     const method = editingId ? "PUT" : "POST";
     const url = editingId 
-      ? `http://localhost:3000/api/monsters/${editingId}` 
-      : "http://localhost:3000/api/monsters";
+      ? `https://silent-hill-archives.onrender.com/api/monsters/${editingId}` 
+      : "https://silent-hill-archives.onrender.com/api/monsters";
     
     try {
       const response = await fetch(url, {
@@ -69,14 +70,13 @@ export default function Monsters() {
 
   const deleteMonster = async (id) => {
     if (confirm("_CONFIRM_THREAT_ELIMINATION?")) {
-      await fetch(`http://localhost:3000/api/monsters/${id}`, { method: "DELETE" });
+      await fetch(`https://silent-hill-archives.onrender.com/api/monsters/${id}`, { method: "DELETE" });
       fetchMonsters();
     }
   };
 
   return (
     <div className="relative min-h-screen w-full font-['Special_Elite']">
-      {/* Fondo */}
       <div className="fixed inset-0 z-0 h-screen w-screen">
         <img src={monstersBg} className="w-full h-full object-cover" alt="bg" />
         <div className="absolute inset-0 bg-red-950/40 backdrop-blur-[2px]"></div>
@@ -139,7 +139,6 @@ export default function Monsters() {
           </table>
         </div>
 
-        {/* Modal Monsters */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-6 backdrop-blur-md">
             <div className="w-full max-w-lg bg-white p-10 border-4 border-red-900 shadow-[0_0_50px_rgba(153,27,27,0.4)]">

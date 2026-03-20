@@ -11,7 +11,7 @@ export default function Characters() {
 
   const fetchCharacters = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/characters");
+      const res = await fetch("https://silent-hill-archives.onrender.com/api/characters");
       const data = await res.json();
       setCharacters(data);
     } catch (error) {
@@ -49,8 +49,8 @@ export default function Characters() {
     
     const method = editingId ? "PUT" : "POST";
     const url = editingId 
-      ? `http://localhost:3000/api/characters/${editingId}` 
-      : "http://localhost:3000/api/characters";
+      ? `https://silent-hill-archives.onrender.com/api/characters/${editingId}` 
+      : "https://silent-hill-archives.onrender.com/api/characters";
     
     try {
       const response = await fetch(url, {
@@ -70,7 +70,7 @@ export default function Characters() {
 
   const deleteChar = async (id) => {
     if (confirm("_CONFIRM_DATA_PURGE?")) {
-      await fetch(`http://localhost:3000/api/characters/${id}`, { method: "DELETE" });
+      await fetch(`https://silent-hill-archives.onrender.com/api/characters/${id}`, { method: "DELETE" });
       fetchCharacters();
     }
   };

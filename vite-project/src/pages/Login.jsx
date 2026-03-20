@@ -12,7 +12,7 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch("http://localhost:3000/api/login", {
+      const res = await fetch("https://silent-hill-archives.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: user, password: password })
@@ -30,7 +30,7 @@ function Login() {
   const handleRegister = async (e) => {
     e.preventDefault()
     try {
-      const res = await fetch("http://localhost:3000/api/register", {
+      const res = await fetch("https://silent-hill-archives.onrender.com/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(regData)
