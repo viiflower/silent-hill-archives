@@ -23,24 +23,24 @@ const Monsters = () => {
     }
   };
 
-  useEffect(() => { fetchCharacters(); }, []); // corregido para que cargue al inicio
+  useEffect(() => { fetchMonsters(); }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // enviamos 'danger', 'description', 'image' y 'encounter_location' vacio para evitar error sql
+      // segun tu sql: danger_level paso a 'danger', notes paso a 'description' e incluimos 'image'
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         danger: dangerlevel.toUpperCase(),
         description: description,
         image: imageurl,
-        encounter_location: "UNKNOWN"
+        encounter_location: "UNKNOWN_SECTOR"
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);
       fetchMonsters();
     } catch (err) {
-      alert("server_error_500: error al guardar monstruo");
+      alert("server_error_500: error al guardar amenaza");
     }
   };
 
