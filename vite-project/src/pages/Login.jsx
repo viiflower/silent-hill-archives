@@ -9,7 +9,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  // URL de tu Web Service en Render
   const API_URL = "https://silent-hill-archives.onrender.com"; 
 
   const handleAction = async (e) => {
@@ -17,37 +16,37 @@ const Login = () => {
     const endpoint = isRegistering ? '/api/register' : '/api/login';
     
     try {
-      // Enviamos el nombre en MAYÚSCULAS y sin espacios para evitar el Error 500
+      // Limpiamos el nombre: Todo a MAYÚSCULAS y sin espacios
+      const finalUser = username.toUpperCase().trim();
+
       const response = await axios.post(`${API_URL}${endpoint}`, {
-        username: username.toUpperCase().trim(), 
+        username: finalUser, 
         password: password
       });
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("REGISTRO EXITOSO: AHORA INICIA SESIÓN");
+          alert("REGISTRO EXITOSO: YA PUEDES ENTRAR");
           setIsRegistering(false);
           setUsername('');
           setPassword('');
         } else {
-          localStorage.setItem('user', username.toUpperCase());
+          localStorage.setItem('user', finalUser);
           navigate('/characters');
         }
       }
     } catch (error) {
-      console.error(error);
-      // Si el servidor manda un error específico (como "Usuario ya existe"), lo mostramos
-      const errorMsg = error.response?.data?.error || "ERROR DE CONEXIÓN";
-      alert(`SISTEMA: ${errorMsg}`);
+      // Capturamos el error 500 para saber si el usuario ya existe
+      const msg = error.response?.data?.error || "ERROR_DE_SISTEMA";
+      alert(`AVISO: ${msg}`);
     }
   };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
-      {/* Fondo de niebla */}
-      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
+      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40" />
 
-      <div className="relative z-[60] w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
+      <div className="relative z-50 w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
         <h2 className="text-black text-2xl tracking-tighter text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
           SILENT HILL ARCHIVE
         </h2>
@@ -59,9 +58,8 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* Escribes normal, pero el texto es negro */
-              style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
+              /* LETRA NEGRA, FONDO BLANCO Y SIN FORZAR MAYÚSCULAS VISUALES */
+              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:ring-2 focus:ring-red-900"
               placeholder="ENTER_NAME"
               required
             />
@@ -73,14 +71,14 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
+              /* LETRA NEGRA Y FONDO BLANCO */
+              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:ring-2 focus:ring-red-900"
               placeholder="********"
               required
             />
           </div>
 
-          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold tracking-widest text-sm">
+          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm">
             {isRegistering ? "SAVE_DATA" : "ESTABLISH_CONNECTION"}
           </button>
         </form>
