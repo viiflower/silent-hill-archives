@@ -28,7 +28,7 @@ const Characters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // usamos 'image' porque asi esta definido en tu sql
+      // usamos image porque asi se renombro en tu sql
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),

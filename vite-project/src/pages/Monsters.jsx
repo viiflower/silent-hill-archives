@@ -28,13 +28,13 @@ const Monsters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // enviamos 'danger' y 'encounter_location' para cumplir con las restricciones de tu sql
+      // incluimos encounter_location porque tu sql no permite que sea nulo
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         danger: dangerlevel.toUpperCase(),
         description: description,
         image: imageurl,
-        encounter_location: "UNKNOWN_SECTOR"
+        encounter_location: "UNKNOWN"
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);
