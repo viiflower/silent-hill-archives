@@ -9,6 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  // URL de tu Web Service en Render
   const API_URL = "https://silent-hill-archives.onrender.com"; 
 
   const handleAction = async (e) => {
@@ -16,7 +17,7 @@ const Login = () => {
     const endpoint = isRegistering ? '/api/register' : '/api/login';
     
     try {
-      // Normalizamos a MAYÚSCULAS antes de enviar para que coincida con la DB
+      // Enviamos el nombre en MAYÚSCULAS y sin espacios para evitar el Error 500
       const response = await axios.post(`${API_URL}${endpoint}`, {
         username: username.toUpperCase().trim(), 
         password: password
@@ -35,17 +36,18 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      // Si el backend manda un error 401 o 500, lo mostramos aquí
-      const mensajeError = error.response?.data?.error || "FALLO_DE_SISTEMA";
-      alert(`ERROR: ${mensajeError}`);
+      // Si el servidor manda un error específico (como "Usuario ya existe"), lo mostramos
+      const errorMsg = error.response?.data?.error || "ERROR DE CONEXIÓN";
+      alert(`SISTEMA: ${errorMsg}`);
     }
   };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
-      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40" />
+      {/* Fondo de niebla */}
+      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
 
-      <div className="relative z-50 w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
+      <div className="relative z-[60] w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
         <h2 className="text-black text-2xl tracking-tighter text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
           SILENT HILL ARCHIVE
         </h2>
@@ -57,8 +59,8 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* TEXTO NEGRO FORZADO Y SIEMPRE SE VE EN MAYÚSCULAS MIENTRAS ESCRIBES */
-              style={{ color: '#000000', textTransform: 'uppercase' }}
+              /* Escribes normal, pero el texto es negro */
+              style={{ color: '#000000' }}
               className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="ENTER_NAME"
               required
@@ -71,7 +73,6 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* CONTRASEÑA TAMBIÉN EN NEGRO */
               style={{ color: '#000000' }}
               className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="********"
@@ -79,7 +80,7 @@ const Login = () => {
             />
           </div>
 
-          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm">
+          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold tracking-widest text-sm">
             {isRegistering ? "SAVE_DATA" : "ESTABLISH_CONNECTION"}
           </button>
         </form>
