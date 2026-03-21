@@ -28,7 +28,7 @@ const Characters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // enviamos 'image' para que coincida con el alter table de tu sql
+      // usamos 'image' porque asi esta definido en tu sql
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),
