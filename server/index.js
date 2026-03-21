@@ -6,16 +6,15 @@ require('dotenv').config();
 
 const app = express();
 
-// configuracion de cors para permitir comunicacion con el frontend
+// configuracion de cors
 app.use(cors({
-  origin: 'https://silent-hill-archives-1.onrender.com', // tu url de render
+  origin: 'https://silent-hill-archives-1.onrender.com', // tu url de frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
-// conexion a la base de datos postgresql
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -25,7 +24,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// --- ruta de login ---
+// --- login ---
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -33,41 +32,37 @@ app.post("/api/login", async (req, res) => {
     const result = await pool.query("SELECT * FROM users WHERE username = $1", [userUpper]);
     if (result.rows.length > 0) {
       const match = await bcrypt.compare(password, result.rows[0].password);
-      if (match) return res.status(200).json({ message: "ACCESO_OK", user: userUpper });
+      if (match) return res.status(200).json({ message: "acceso_ok", user: userUpper });
     }
-    res.status(401).json({ error: "CREDENCIALES_INVALIDAS" });
+    res.status(401).json({ error: "credenciales_invalidas" });
   } catch (err) {
-    res.status(500).json({ error: "ERROR_INTERNO_LOGIN" });
+    res.status(500).json({ error: "error_servidor" });
   }
 });
 
-// --- rutas para characters (personajes) ---
-
-// obtener todos
+// --- rutas characters ---
 app.get('/api/characters', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM characters ORDER BY char_id DESC');
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: 'error_al_leer_personajes' });
+    res.status(500).json({ error: 'error_leer_personajes' });
   }
 });
 
-// crear nuevo personaje
 app.post('/api/characters', async (req, res) => {
   const { name, status, image, description } = req.body;
   try {
     const result = await pool.query(
       'INSERT INTO characters (name, status, image, description) VALUES ($1, $2, $3, $4) RETURNING *',
-      [name.toUpperCase().trim(), status.toUpperCase().trim(), image, description.trim()]
+      [name.toUpperCase(), status.toUpperCase(), image, description]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ error: 'error_al_guardar_personaje' });
+    res.status(500).json({ error: 'error_guardar_personaje' });
   }
 });
 
-// editar personaje existente
 app.put('/api/characters/:id', async (req, res) => {
   const { name, status, image, description } = req.body;
   try {
@@ -81,7 +76,6 @@ app.put('/api/characters/:id', async (req, res) => {
   }
 });
 
-// eliminar personaje
 app.delete('/api/characters/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM characters WHERE char_id = $1', [req.params.id]);
@@ -91,34 +85,31 @@ app.delete('/api/characters/:id', async (req, res) => {
   }
 });
 
-// --- rutas para monsters (monstruos) ---
-
-// obtener todos
+// --- rutas monsters ---
 app.get('/api/monsters', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM monsters ORDER BY monster_id DESC');
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: 'error_al_leer_monstruos' });
+    res.status(500).json({ error: 'error_leer_monstruos' });
   }
 });
 
-// crear nuevo monstruo (corregido para evitar error 500)
 app.post('/api/monsters', async (req, res) => {
   const { name, danger, image, description } = req.body;
   try {
+    // importante: incluimos encounter_location para evitar el error 500
     const result = await pool.query(
       'INSERT INTO monsters (name, danger, image, description, encounter_location) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-      [name.toUpperCase().trim(), danger.toUpperCase().trim(), image, description.trim(), "SECTOR_UNKNOWN"]
+      [name.toUpperCase(), danger.toUpperCase(), image, description, "UNKNOWN_SECTOR"]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err.message); // esto ayuda a ver el error real en los logs de render
-    res.status(500).json({ error: 'error_al_guardar_monstruo' });
+    console.error("error en post monsters:", err.message);
+    res.status(500).json({ error: 'error_guardar_monstruo' });
   }
 });
 
-// editar monstruo existente
 app.put('/api/monsters/:id', async (req, res) => {
   const { name, danger, image, description } = req.body;
   try {
@@ -132,7 +123,6 @@ app.put('/api/monsters/:id', async (req, res) => {
   }
 });
 
-// eliminar monstruo
 app.delete('/api/monsters/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM monsters WHERE monster_id = $1', [req.params.id]);
@@ -142,8 +132,7 @@ app.delete('/api/monsters/:id', async (req, res) => {
   }
 });
 
-// puerto y encendido del servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`servidor corriendo en el puerto ${PORT}`);
+  console.log(`servidor activo en puerto ${PORT}`);
 });
