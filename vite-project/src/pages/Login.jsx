@@ -9,7 +9,6 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  // URL DE TU WEB SERVICE (La que me pasaste: archives.onrender.com)
   const API_URL = "https://silent-hill-archives.onrender.com"; 
 
   const handleAction = async (e) => {
@@ -23,7 +22,7 @@ const Login = () => {
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("REGISTRO EXITOSO: INICIE CONEXIÓN");
+          alert("REGISTRO EXITOSO");
           setIsRegistering(false);
           setUsername('');
           setPassword('');
@@ -34,7 +33,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("ERROR: FALLO EN LA CONEXIÓN CON EL ARCHIVO");
+      alert("ERROR: FALLO EN EL SISTEMA");
     }
   };
 
@@ -54,9 +53,8 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* ESTO HACE QUE LA LETRA SEA NEGRA Y SE VEA SIEMPRE */
               style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white uppercase"
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:bg-white uppercase"
               placeholder="ENTER_NAME"
               required
             />
@@ -68,9 +66,8 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* ESTO HACE QUE LOS PUNTOS DE LA CLAVE SEAN NEGROS */
               style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:bg-white"
               placeholder="********"
               required
             />
