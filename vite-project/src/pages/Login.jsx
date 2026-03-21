@@ -14,15 +14,17 @@ const Login = () => {
   const handleAction = async (e) => {
     e.preventDefault();
     const endpoint = isRegistering ? '/api/register' : '/api/login';
+    
     try {
+      // Normalizamos a MAYÚSCULAS antes de enviar para que coincida con la DB
       const response = await axios.post(`${API_URL}${endpoint}`, {
-        username: username.toUpperCase(), 
-        password
+        username: username.toUpperCase().trim(), 
+        password: password
       });
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("REGISTRO EXITOSO");
+          alert("REGISTRO EXITOSO: AHORA INICIA SESIÓN");
           setIsRegistering(false);
           setUsername('');
           setPassword('');
@@ -33,15 +35,17 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("ERROR: FALLO EN EL SISTEMA");
+      // Si el backend manda un error 401 o 500, lo mostramos aquí
+      const mensajeError = error.response?.data?.error || "FALLO_DE_SISTEMA";
+      alert(`ERROR: ${mensajeError}`);
     }
   };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
-      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
+      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40" />
 
-      <div className="relative z-[60] w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
+      <div className="relative z-50 w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
         <h2 className="text-black text-2xl tracking-tighter text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
           SILENT HILL ARCHIVE
         </h2>
@@ -53,8 +57,9 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:bg-white uppercase"
+              /* TEXTO NEGRO FORZADO Y SIEMPRE SE VE EN MAYÚSCULAS MIENTRAS ESCRIBES */
+              style={{ color: '#000000', textTransform: 'uppercase' }}
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="ENTER_NAME"
               required
             />
@@ -66,14 +71,15 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              /* CONTRASEÑA TAMBIÉN EN NEGRO */
               style={{ color: '#000000' }}
-              className="bg-zinc-100 border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:bg-white"
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="********"
               required
             />
           </div>
 
-          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold tracking-widest text-sm">
+          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm">
             {isRegistering ? "SAVE_DATA" : "ESTABLISH_CONNECTION"}
           </button>
         </form>
