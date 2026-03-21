@@ -29,6 +29,8 @@ app.get('/', (req, res) => {
 
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: "Faltan datos" });
+  
   const upperUser = username.toUpperCase();
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,8 +40,8 @@ app.post("/api/register", async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error al crear el expediente." });
+    console.error("Error en register:", err);
+    res.status(500).json({ error: "No se pudo crear el usuario. Verifique si ya existe." });
   }
 });
 
@@ -88,6 +90,21 @@ app.get("/api/monsters", async (req, res) => {
     const result = await pool.query("SELECT * FROM monsters ORDER BY monster_id DESC");
     res.json(result.rows);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Corregido INSERT de monsters: se cambió 'danger' por 'status' para coincidir con el body
+app.post("/api/monsters", async (req, res) => {
+  const { name, status, description, image } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO monsters (name, status, description, image) VALUES ($1, $2, $3, $4) RETURNING *",
+      [name, status, description, image]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Error en monsters:", err);
     res.status(500).json({ error: err.message });
   }
 });
