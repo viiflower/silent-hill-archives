@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import fog from "src/assets/silenthill2fog.gif"; 
+import fog from "../assets/silenthill2fog.gif"; 
 
 const Login = () => {
   const [isRegistering, setIsRegistering] = useState(false);
