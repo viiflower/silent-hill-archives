@@ -28,11 +28,12 @@ const Characters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Se usa 'image' para coincidir con el ALTER TABLE de tu SQL
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),
         description: description,
-        image: imageurl // Coincide con ALTER TABLE characters ADD COLUMN image
+        image: imageurl 
       });
       setName(''); setStatus(''); setImageurl(''); setDescription('');
       setShowForm(false);

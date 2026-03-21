@@ -30,10 +30,10 @@ const Monsters = () => {
     try {
       await axios.post(API_URL, {
         name: name.toUpperCase(),
-        danger: dangerlevel.toUpperCase(), // RENAME danger_level TO danger 
-        description: description,           // RENAME notes TO description 
+        danger: dangerlevel.toUpperCase(), // Sincronizado con RENAME danger_level TO danger
+        description: description,           // Sincronizado con RENAME notes TO description
         image: imageurl,
-        encounter_location: "UNKNOWN_AREA"   // Campo obligatorio en tabla monsters 
+        encounter_location: "Sector Desconocido" // Campo obligatorio en tu SQL
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);
