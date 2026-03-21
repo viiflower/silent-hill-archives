@@ -15,14 +15,19 @@ app.use(cors({
 app.use(express.json());
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
   ssl: { rejectUnauthorized: false }
 });
 
 app.get('/', (req, res) => {
-  res.send("SERVIDOR ACTIVO");
+  res.send("SERVIDOR ACTIVO Y CONECTADO");
 });
 
+// LOGIN
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: "DATOS_INCOMPLETOS" });
@@ -37,10 +42,12 @@ app.post("/api/login", async (req, res) => {
     }
     res.status(401).json({ error: "CREDENCIALES_INVALIDAS" });
   } catch (err) {
-    res.status(500).json({ error: "ERROR_INTERNO" });
+    console.error(err.message);
+    res.status(500).json({ error: "ERROR_INTERNO_LOGIN" });
   }
 });
 
+// REGISTRO
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: "DATOS_INCOMPLETOS" });
@@ -54,12 +61,13 @@ app.post("/api/register", async (req, res) => {
     );
     res.status(201).json({ message: "REGISTRO_OK", user: result.rows[0].username });
   } catch (err) {
+    console.error("ERROR DB:", err.message);
     if (err.code === '23505') return res.status(400).json({ error: "USUARIO_EXISTENTE" });
-    res.status(500).json({ error: "ERROR_REGISTRO" });
+    res.status(500).json({ error: "ERROR_AL_GUARDAR_EN_DB" });
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`PORT: ${PORT}`);
+  console.log(`SERVIDOR CORRIENDO EN PUERTO ${PORT}`);
 });
