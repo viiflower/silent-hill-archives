@@ -22,7 +22,7 @@ const Login = () => {
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("NUEVO EXPEDIENTE CREADO");
+          alert("REGISTRO EXITOSO");
           setIsRegistering(false);
           setUsername('');
           setPassword('');
@@ -39,42 +39,42 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
-      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-30 z-0" />
+      <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
 
-      {/* CUADRO GRIS CLARO PARA QUE EL TEXTO NEGRO RESALTE */}
-      <div className="relative z-[60] w-full max-w-md bg-zinc-200 border-4 border-zinc-900 p-10 shadow-2xl">
-        <h2 className="text-black text-2xl tracking-tighter text-center border-b-2 border-zinc-900 pb-6 uppercase font-bold mb-6">
-          {isRegistering ? "CREATE_NEW_ARCHIVE" : "IDENTIFY_PERSONNEL"}
+      {/* CUADRO CENTRADO CON FONDO CLARO */}
+      <div className="relative z-[60] w-full max-w-md bg-zinc-200 border-2 border-zinc-900 p-10 shadow-2xl">
+        <h2 className="text-black text-2xl tracking-widest text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
+          SILENT HILL ARCHIVE
         </h2>
 
         <form onSubmit={handleAction} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2 text-left">
-            <label className="text-zinc-800 text-[10px] uppercase font-bold">Specify_Identity</label>
+          <div className="flex flex-col gap-1 text-left">
+            <label className="text-zinc-800 text-[10px] uppercase font-bold">SPECIFY_IDENTITY</label>
             <input 
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* TEXTO NEGRO Y FONDO BLANCO EN EL INPUT */
-              className="bg-white border-2 border-zinc-900 p-4 text-black font-bold outline-none focus:border-red-900 uppercase placeholder:text-zinc-400"
+              /* EL TEXTO ES NEGRO PARA SER VISIBLE SIEMPRE */
+              className="bg-white border border-zinc-900 p-3 text-black font-bold outline-none uppercase placeholder:text-zinc-400"
               placeholder="ENTER_NAME"
               required
             />
           </div>
 
-          <div className="flex flex-col gap-2 text-left">
-            <label className="text-zinc-800 text-[10px] uppercase font-bold">Access_Key</label>
+          <div className="flex flex-col gap-1 text-left">
+            <label className="text-zinc-800 text-[10px] uppercase font-bold">ACCESS_KEY</label>
             <input 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* TEXTO NEGRO PARA QUE SE VEA AL ESCRIBIR */
-              className="bg-white border-2 border-zinc-900 p-4 text-black font-bold outline-none focus:border-red-900"
+              /* LOS PUNTOS DE CONTRASEÑA TAMBIÉN SERÁN NEGROS */
+              className="bg-white border border-zinc-900 p-3 text-black font-bold outline-none"
               placeholder="********"
               required
             />
           </div>
 
-          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm tracking-widest">
+          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm">
             {isRegistering ? "SAVE_DATA" : "ESTABLISH_CONNECTION"}
           </button>
         </form>
