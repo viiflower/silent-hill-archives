@@ -29,11 +29,11 @@ const Monsters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(API_URL, {
+await axios.post(API_URL, {
         name: name.toUpperCase(),
-        dangerlevel: dangerlevel.toUpperCase(), // Asegúrate que en tu DB sea dangerlevel o danger_level
-        imageurl: imageurl,
-        description: description
+        dangerlevel: dangerlevel.toUpperCase(),
+        description: description,
+        image_url: imageurl 
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);

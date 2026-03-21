@@ -31,11 +31,11 @@ const Characters = () => {
     e.preventDefault();
     try {
       // Enviamos los 4 campos exactos que requiere el servidor
-      await axios.post(API_URL, {
+await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),
-        imageurl: imageurl, // Aquí se envía el link que pegues
-        description: description
+        description: description,
+        image_url: imageurl 
       });
       
       // Limpiar formulario y cerrar
