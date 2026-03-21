@@ -1,164 +1,119 @@
-import { useState, useEffect } from "react";
-import charactersBg from "../assets/silenthillhellmosnter.gif"; 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import charactersBg from "../assets/silenthill3login.gif";
 
-export default function Characters() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [characters, setCharacters] = useState([]); 
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ name: "", status: "", description: "", image: "" });
-
-  const inputStyle = "w-full bg-transparent border-b border-black/30 p-3 text-black outline-none focus:border-black transition-all uppercase text-[12px] tracking-widest font-mono placeholder:text-gray-400";
+const Characters = () => {
+  const [characters, setCharacters] = useState([]);
+  const [name, setName] = useState('');
+  const [status, setStatus] = useState('');
+  const [description, setDescription] = useState('');
 
   const fetchCharacters = async () => {
     try {
-      const res = await fetch("https://silent-hill-archives.onrender.com/api/characters");
-      const data = await res.json();
-      setCharacters(data);
-    } catch (error) {
-      console.error("Error fetching:", error);
+      const res = await axios.get('https://tu-api-render.onrender.com/api/characters');
+      setCharacters(res.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  useEffect(() => { fetchCharacters(); }, []);
+  useEffect(() => {
+    fetchCharacters();
+  }, []);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingId(null);
-    setFormData({ name: "", status: "", description: "", image: "" });
-  };
-
-  const handleOpenAdd = () => {
-    setEditingId(null); 
-    setFormData({ name: "", status: "", description: "", image: "" });
-    setIsModalOpen(true);
-  };
-
-  const startEdit = (c) => {
-    setEditingId(c.char_id);
-    setFormData({ 
-      name: c.name || "", 
-      status: c.status || "", 
-      description: c.description || "", 
-      image: c.image || "" 
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const method = editingId ? "PUT" : "POST";
-    const url = editingId 
-      ? `https://silent-hill-archives.onrender.com/api/characters/${editingId}` 
-      : "https://silent-hill-archives.onrender.com/api/characters";
-    
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+      await axios.post('https://tu-api-render.onrender.com/api/characters', {
+        name: name.toUpperCase(),
+        status: status.toUpperCase(),
+        description
       });
-
-      if (response.ok) {
-        closeModal(); 
-        fetchCharacters(); 
-      }
-    } catch (error) {
-      console.error("Error saving:", error);
-    }
-  };
-
-  const deleteChar = async (id) => {
-    if (confirm("_CONFIRM_DATA_PURGE?")) {
-      await fetch(`https://silent-hill-archives.onrender.com/api/characters/${id}`, { method: "DELETE" });
+      setName('');
+      setStatus('');
+      setDescription('');
       fetchCharacters();
+    } catch (err) {
+      alert("ERROR_IN_ARCHIVE_PROCESS");
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full font-['Special_Elite']">
-      <div className="fixed inset-0 z-0 h-screen w-screen">
-        <img src={charactersBg} className="w-full h-full object-cover" alt="bg" />
-        <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px]"></div>
-      </div>
+    <div className="relative min-h-screen w-full bg-black text-white font-mono overflow-x-hidden">
+      {/* FONDO DE SILENT HILL 3 GIF */}
+      <img 
+        src={charactersBg} 
+        alt="background" 
+        className="fixed inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none" 
+      />
+      
+      <div className="relative z-10 p-8">
+        <h1 className="text-4xl tracking-[0.5em] text-center mb-12 uppercase border-b border-zinc-900 pb-4 font-bold shadow-black drop-shadow-md">
+          S.H._DATABASE_PERSONNEL
+        </h1>
 
-      <div className="relative z-10 p-12 max-w-7xl mx-auto">
-        <header className="flex justify-between items-end mb-16 border-b-2 border-white/20 pb-10">
-          <h1 className="text-5xl text-white tracking-[0.7em] uppercase font-bold">Archive_Personnel</h1>
-          <button 
-            onClick={handleOpenAdd} 
-            className="border-2 border-white px-10 py-4 text-white hover:bg-white hover:text-black transition-all uppercase tracking-widest font-bold"
-          >
-            + ADD_NEW_ENTRY
-          </button>
-        </header>
-
-        <div className="bg-black/80 border border-white/20 shadow-2xl overflow-hidden backdrop-blur-sm">
-          <table className="w-full text-left text-[14px] uppercase tracking-widest text-white table-fixed">
-            <thead className="bg-white/10 border-b border-white/40 text-gray-300">
-              <tr>
-                <th className="p-4 w-20">VISUAL</th>
-                <th className="p-4 w-52">NAME</th>
-                <th className="p-4 w-40">STATUS</th>
-                <th className="p-4">DESCRIPTION_REPORT</th>
-                <th className="p-4 w-48 text-right">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody>
-              {characters.map((c) => (
-                <tr key={c.char_id} className="border-b border-white/10 hover:bg-white/5 transition-all align-top">
-                  <td className="p-4 pt-5">
-                    <div className="w-10 h-10 border border-white/20 bg-gray-900 overflow-hidden">
-                      {c.image && <img src={c.image} className="w-full h-full object-cover grayscale" alt="subject" />}
-                    </div>
-                  </td>
-                  <td className="p-4 font-bold text-white pt-5 text-[13px]">{c.name}</td>
-                  <td className="p-4 pt-5 text-gray-400 text-[12px]">{c.status}</td>
-                  <td className="p-4 pt-5 text-gray-400 italic text-[13px]">
-                    <div className="whitespace-normal break-words pr-4 text-justify">{c.description}</div>
-                  </td>
-                  <td className="p-4 pt-5 text-right">
-                    <div className="flex flex-col gap-3 items-end">
-                      <button 
-                        onClick={() => startEdit(c)} 
-                        className="border-2 border-white/40 px-6 py-3 text-[11px] font-bold hover:bg-white hover:text-black transition-all w-44 text-center"
-                      >
-                        [ MODIFY_FILE ]
-                      </button>
-                      <button 
-                        onClick={() => deleteChar(c.char_id)} 
-                        className="border-2 border-red-900/60 text-red-600 px-6 py-3 text-[11px] font-bold hover:bg-red-900 hover:text-white transition-all w-44 text-center"
-                      >
-                        [ PURGE_DATA ]
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 gap-8 max-w-6xl mx-auto mb-20">
+          {characters.map((char) => (
+            <div key={char.char_id} className="bg-zinc-950/90 border border-zinc-800 p-6 flex flex-col md:flex-row gap-6 shadow-2xl backdrop-blur-sm">
+              <div className="w-full md:w-48 h-48 bg-zinc-900 border border-zinc-800 flex-shrink-0 overflow-hidden">
+                {char.image && <img src={char.image} alt={char.name} className="w-full h-full object-cover grayscale brightness-75 hover:brightness-100 transition-all" />}
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl tracking-widest uppercase mb-2 text-red-800 font-bold">{char.name}</h2>
+                <p className="text-zinc-500 text-xs mb-4 tracking-tighter">STATUS: {char.status}</p>
+                <p className="text-zinc-200 leading-relaxed text-sm italic">{char.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-6 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-white p-10 border-4 border-black shadow-2xl">
-              <h2 className="text-black tracking-[0.4em] uppercase text-xl mb-8 font-bold text-center border-b-2 border-black pb-4">
-                {editingId ? ":: UPDATE_ARCHIVE ::" : ":: NEW_RECORD ::"}
-              </h2>
-              <form onSubmit={handleSave} className="space-y-6">
-                <input required className={inputStyle} placeholder="NAME" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                <input required className={inputStyle} placeholder="STATUS" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
-                <input className={inputStyle} placeholder="IMAGE URL" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
-                <textarea required className={`${inputStyle} h-32 resize-none normal-case`} placeholder="DESCRIPTION" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
-                <button type="submit" className="w-full bg-black text-white py-5 font-bold tracking-[0.6em] uppercase hover:bg-gray-800 transition-all border-2 border-black">
-                  {editingId ? "[ COMMIT_CHANGES ]" : "[ UPLOAD_ENTRY ]"}
-                </button>
-              </form>
-              <button onClick={closeModal} className="mt-6 w-full text-[10px] text-gray-400 uppercase text-center font-bold tracking-widest hover:text-red-600 transition-colors">_ABORT_ACTION</button>
+        {/* CUADRO DE REGISTRO CENTRADO Y VISIBLE */}
+        <section className="relative z-[60] max-w-4xl mx-auto bg-zinc-950/95 border-2 border-zinc-900 p-10 shadow-[0_0_50px_rgba(0,0,0,1)] mb-20">
+          <h2 className="text-white text-2xl tracking-[0.4em] text-center border-b border-zinc-900 pb-6 uppercase mb-8 font-bold">
+            :: New_Archive_Entry ::
+          </h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-2">
+                <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Subject_Name</label>
+                <input 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none uppercase placeholder:text-zinc-900 transition-colors" 
+                  placeholder="SPECIFY_NAME" 
+                  required 
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Condition_Status</label>
+                <input 
+                  value={status} 
+                  onChange={(e) => setStatus(e.target.value)} 
+                  className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none uppercase placeholder:text-zinc-900 transition-colors" 
+                  placeholder="CURRENT_STATUS" 
+                  required 
+                />
+              </div>
             </div>
-          </div>
-        )}
+            <div className="flex flex-col gap-2">
+              <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Description_Report</label>
+              <textarea 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)} 
+                rows="5" 
+                className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none resize-none placeholder:text-zinc-900 transition-colors" 
+                placeholder="ENTER_DETAILED_OBSERVATIONS" 
+                required 
+              ></textarea>
+            </div>
+            <button type="submit" className="border border-zinc-800 p-5 text-zinc-500 hover:bg-white hover:text-black transition-all uppercase font-bold tracking-[0.3em]">
+              Archive_Data_Entry
+            </button>
+          </form>
+        </section>
       </div>
     </div>
   );
-}
+};
+
+export default Characters;

@@ -1,120 +1,77 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
-import fog from "../assets/silenthill2fog.gif"
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import fog from "../assets/silenthill2fog.gif";
 
-function Login() {
-  const navigate = useNavigate()
-  const [user, setUser] = useState("")
-  const [password, setPassword] = useState("")
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
-  const [regData, setRegData] = useState({ username: "", password: "" })
+const Login = () => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-      const res = await fetch("https://silent-hill-archives.onrender.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: user, password: password })
-      })
-      if (res.ok) {
-        navigate("/characters")
-      } else {
-        alert("ERROR: ACCESO DENEGADO.")
+      const response = await axios.post('https://tu-api-render.onrender.com/api/login', {
+        username: username.toUpperCase(),
+        password
+      });
+      if (response.data.message === "ACCESO_CONCEDIDO") {
+        localStorage.setItem('user', response.data.user);
+        navigate('/characters');
       }
     } catch (error) {
-      alert("ERROR_SYSTEM_FAILURE")
+      alert("IDENTIDAD NO RECONOCIDA");
     }
-  }
-
-  const handleRegister = async (e) => {
-    e.preventDefault()
-    try {
-      const res = await fetch("https://silent-hill-archives.onrender.com/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(regData)
-      })
-      if (res.ok) {
-        alert("EXPEDIENTE CREADO CON ÉXITO")
-        setIsRegisterOpen(false)
-      } else {
-        alert("ERROR AL REGISTRAR")
-      }
-    } catch (error) {
-      alert("CONNECTION_LOST")
-    }
-  }
+  };
 
   return (
-    <div className="relative h-screen w-full bg-black overflow-hidden font-['Special_Elite']">
-      <img src={fog} className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen" />
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
-        <h1 className="text-white text-4xl md:text-6xl tracking-[0.3em] mb-12 uppercase font-bold text-center">
-          SILENT_HILL_ARCHIVES
-        </h1>
-        
-        <form onSubmit={handleLogin} className="w-full max-w-xs space-y-6">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+      {/* EL GIF DE FONDO */}
+      <img 
+        src={fog} 
+        alt="fog" 
+        className="absolute inset-0 w-full h-full object-cover opacity-40 z-0"
+      />
+
+      {/* EL CUADRO DE LOGIN SOBRE LA NIEBLA */}
+      <form 
+        onSubmit={handleLogin} 
+        className="relative z-[60] w-full max-w-md bg-zinc-950/90 border-2 border-zinc-900 p-10 shadow-[0_0_50px_rgba(0,0,0,0.9)] flex flex-col gap-6"
+      >
+        <h2 className="text-white text-2xl tracking-[0.3em] text-center border-b border-zinc-900 pb-6 uppercase font-bold">
+          Identify_Personnel
+        </h2>
+
+        <div className="flex flex-col gap-2 text-left">
+          <label className="text-zinc-600 text-xs uppercase tracking-widest">Identity</label>
           <input 
-            className="w-full bg-transparent border-b border-white/20 text-white p-2 outline-none uppercase text-xs tracking-widest"
-            placeholder="IDENTITY" 
-            value={user}
-            onChange={(e) => setUser(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="bg-black border border-zinc-800 p-4 text-white placeholder:text-zinc-900 outline-none focus:border-red-900 transition-all uppercase"
+            placeholder="ENTER_NAME"
+            required
           />
+        </div>
+
+        <div className="flex flex-col gap-2 text-left">
+          <label className="text-zinc-600 text-xs uppercase tracking-widest">Access_Key</label>
           <input 
             type="password"
-            className="w-full bg-transparent border-b border-white/20 text-white p-2 outline-none uppercase text-xs tracking-widest"
-            placeholder="SECURITY_CODE" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            className="bg-black border border-zinc-800 p-4 text-white placeholder:text-zinc-900 outline-none focus:border-red-900 transition-all"
+            placeholder="********"
+            required
           />
-          <button className="w-full border border-white/40 text-white py-3 hover:bg-white/10 transition-all uppercase text-[10px] tracking-[0.5em]">
-            [ ACCESS_SYSTEM ]
-          </button>
-          <button 
-            type="button"
-            onClick={() => setIsRegisterOpen(true)}
-            className="w-full text-white/40 text-[9px] tracking-widest uppercase hover:text-white"
-          >
-            CREATE_NEW_IDENTITY
-          </button>
-        </form>
+        </div>
 
-        {isRegisterOpen && (
-          <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
-            <div className="w-full max-w-sm border border-white/10 p-10 bg-black shadow-2xl">
-              <h2 className="text-white text-xl mb-8 tracking-[0.2em] uppercase">NEW_RECORD</h2>
-              <form onSubmit={handleRegister} className="space-y-8">
-                <input 
-                  required
-                  className="w-full bg-transparent border-b border-gray-800 text-gray-300 py-2 outline-none text-xs uppercase" 
-                  placeholder="ASSIGN_IDENTITY" 
-                  value={regData.username}
-                  onChange={(e) => setRegData({...regData, username: e.target.value})}
-                />
-                <input 
-                  required
-                  type="password"
-                  className="w-full bg-transparent border-b border-gray-800 text-gray-300 py-2 outline-none text-xs uppercase" 
-                  placeholder="SET_SECURITY_CODE" 
-                  value={regData.password}
-                  onChange={(e) => setRegData({...regData, password: e.target.value})}
-                />
-                <div className="pt-4 flex flex-col gap-4">
-                  <button type="submit" className="w-full border border-white/20 text-white/70 py-2 tracking-[0.4em] hover:bg-white/10 hover:text-white transition-all uppercase text-[10px]">
-                    [ COMMIT_CHANGES ]
-                  </button>
-                  <button type="button" onClick={() => setIsRegisterOpen(false)} className="text-[9px] text-red-900 hover:text-red-600 tracking-widest uppercase">
-                    ABORT_REGISTRATION
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
+        <button type="submit" className="mt-4 border border-zinc-800 py-4 text-zinc-500 hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-[0.2em] text-sm font-bold">
+          Establish_Connection
+        </button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

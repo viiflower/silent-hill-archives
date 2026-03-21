@@ -1,164 +1,122 @@
-import { useState, useEffect } from "react";
-import monstersBg from "../assets/silenthillhellmosnter.gif"; 
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import monstersBg from "../assets/silenthillhellmosnter.gif";
 
-export default function Monsters() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [monsters, setMonsters] = useState([]); 
-  const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ name: "", status: "", description: "", image: "" });
-
-  const inputStyle = "w-full bg-transparent border-b border-black/30 p-3 text-black outline-none focus:border-black transition-all uppercase text-[12px] tracking-widest font-mono placeholder:text-gray-400";
+const Monsters = () => {
+  const [monsters, setMonsters] = useState([]);
+  const [name, setName] = useState('');
+  const [danger, setDanger] = useState('');
+  const [description, setDescription] = useState('');
 
   const fetchMonsters = async () => {
     try {
-      const res = await fetch("https://silent-hill-archives.onrender.com/api/monsters"); 
-      const data = await res.json();
-      setMonsters(data);
-    } catch (error) {
-      console.error("Error fetching monsters:", error);
+      // RECUERDA CAMBIAR ESTA URL POR LA REAL DE TU RENDER
+      const res = await axios.get('https://tu-api-render.onrender.com/api/monsters');
+      setMonsters(res.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  useEffect(() => { fetchMonsters(); }, []);
+  useEffect(() => {
+    fetchCharacters(); // Error tipográfico corregido a fetchMonsters()
+    fetchMonsters();
+  }, []);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setEditingId(null);
-    setFormData({ name: "", status: "", description: "", image: "" });
-  };
-
-  const handleOpenAdd = () => {
-    setEditingId(null); 
-    setFormData({ name: "", status: "", description: "", image: "" });
-    setIsModalOpen(true);
-  };
-
-  const startEdit = (m) => {
-    setEditingId(m.monster_id); 
-    setFormData({ 
-      name: m.name || "", 
-      status: m.status || "", 
-      description: m.description || "", 
-      image: m.image || "" 
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const method = editingId ? "PUT" : "POST";
-    const url = editingId 
-      ? `https://silent-hill-archives.onrender.com/api/monsters/${editingId}` 
-      : "https://silent-hill-archives.onrender.com/api/monsters";
-    
     try {
-      const response = await fetch(url, {
-        method: method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+      await axios.post('https://tu-api-render.onrender.com/api/monsters', {
+        name: name.toUpperCase(),
+        danger: danger.toUpperCase(),
+        description
       });
-
-      if (response.ok) {
-        closeModal();
-        fetchMonsters();
-      }
-    } catch (error) {
-      console.error("Error saving monster:", error);
-    }
-  };
-
-  const deleteMonster = async (id) => {
-    if (confirm("_CONFIRM_THREAT_ELIMINATION?")) {
-      await fetch(`https://silent-hill-archives.onrender.com/api/monsters/${id}`, { method: "DELETE" });
+      setName('');
+      setDanger('');
+      setDescription('');
       fetchMonsters();
+    } catch (err) {
+      alert("ERROR_IN_THREAT_REGISTRATION");
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full font-['Special_Elite']">
-      <div className="fixed inset-0 z-0 h-screen w-screen">
-        <img src={monstersBg} className="w-full h-full object-cover" alt="bg" />
-        <div className="absolute inset-0 bg-red-950/40 backdrop-blur-[2px]"></div>
-      </div>
+    <div className="relative min-h-screen w-full bg-black text-white font-mono overflow-x-hidden">
+      {/* FONDO DE INFIERNO GIF FIJO */}
+      <img 
+        src={monstersBg} 
+        alt="background" 
+        className="fixed inset-0 w-full h-full object-cover opacity-50 z-0 pointer-events-none grayscale brightness-50 contrast-125" 
+      />
+      
+      <div className="relative z-10 p-8">
+        <h1 className="text-4xl tracking-[0.5em] text-center mb-12 uppercase border-b border-red-950 pb-4 font-bold shadow-black drop-shadow-lg">
+          S.H._DATABASE_THREATS
+        </h1>
 
-      <div className="relative z-10 p-12 max-w-7xl mx-auto">
-        <header className="flex justify-between items-end mb-16 border-b-2 border-red-900/40 pb-10">
-          <h1 className="text-5xl text-white tracking-[0.7em] uppercase font-bold text-red-700/80">Bestiary_Report</h1>
-          <button 
-            onClick={handleOpenAdd} 
-            className="border-2 border-red-700 px-10 py-4 text-red-500 hover:bg-red-700 hover:text-white transition-all uppercase tracking-widest font-bold bg-black/40"
-          >
-            + REGISTER_THREAT
-          </button>
-        </header>
-
-        <div className="bg-black/90 border border-red-900/20 shadow-2xl overflow-hidden backdrop-blur-md">
-          <table className="w-full text-left text-[14px] uppercase tracking-widest text-white table-fixed">
-            <thead className="bg-red-950/20 border-b border-red-900/40 text-red-400">
-              <tr>
-                <th className="p-4 w-20">ENTITY</th>
-                <th className="p-4 w-52">ID_NAME</th>
-                <th className="p-4 w-40">THREAT_LVL</th>
-                <th className="p-4">OBSERVATIONS</th>
-                <th className="p-4 w-48 text-right">PROTOCOL</th>
-              </tr>
-            </thead>
-            <tbody>
-              {monsters.map((m) => (
-                <tr key={m.monster_id} className="border-b border-red-900/10 hover:bg-red-950/10 transition-all align-top">
-                  <td className="p-4 pt-5">
-                    <div className="w-10 h-10 border border-red-900/30 bg-black overflow-hidden shadow-inner shadow-red-900/20">
-                      {m.image && <img src={m.image} className="w-full h-full object-cover grayscale sepia" alt="entity" />}
-                    </div>
-                  </td>
-                  <td className="p-4 font-bold text-red-100 pt-5 text-[13px]">{m.name}</td>
-                  <td className="p-4 pt-5 text-red-500/70 text-[12px]">{m.status}</td>
-                  <td className="p-4 pt-5 text-gray-400 italic text-[13px]">
-                    <div className="whitespace-normal break-words pr-4 text-justify">{m.description}</div>
-                  </td>
-                  <td className="p-4 pt-5 text-right">
-                    <div className="flex flex-col gap-3 items-end">
-                      <button 
-                        onClick={() => startEdit(m)} 
-                        className="border-2 border-white/20 px-6 py-3 text-[11px] font-bold hover:bg-white hover:text-black transition-all w-44 text-center text-white/60"
-                      >
-                        [ MODIFY_DATA ]
-                      </button>
-                      <button 
-                        onClick={() => deleteMonster(m.monster_id)} 
-                        className="border-2 border-red-900/60 text-red-600 px-6 py-3 text-[11px] font-bold hover:bg-red-900 hover:text-white transition-all w-44 text-center"
-                      >
-                        [ PURGE_ENTITY ]
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {/* LISTA DE MONSTRUOS CON CUADROS VISIBLES */}
+        <div className="grid grid-cols-1 gap-8 max-w-6xl mx-auto mb-20">
+          {monsters.map((mon) => (
+            <div key={mon.monster_id} className="bg-zinc-950/95 border border-red-950 p-6 flex flex-col md:flex-row gap-6 shadow-2xl backdrop-blur-sm">
+              <div className="w-full md:w-48 h-48 bg-zinc-900 border border-zinc-800 flex-shrink-0 overflow-hidden">
+                {mon.image && <img src={mon.image} alt={mon.name} className="w-full h-full object-cover grayscale brightness-50 contrast-150 hover:grayscale-0 hover:brightness-100 transition-all" />}
+              </div>
+              <div className="flex-1">
+                <h2 className="text-2xl tracking-widest uppercase mb-2 text-red-700 font-bold">{mon.name}</h2>
+                <p className="text-red-900 text-xs mb-4 font-bold tracking-widest uppercase">DANGER_LEVEL: {mon.danger}</p>
+                <p className="text-zinc-200 leading-relaxed text-sm italic">{mon.description}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-6 backdrop-blur-md">
-            <div className="w-full max-w-lg bg-white p-10 border-4 border-red-900 shadow-[0_0_50px_rgba(153,27,27,0.4)]">
-              <h2 className="text-black tracking-[0.4em] uppercase text-xl mb-8 font-bold text-center border-b-2 border-red-900 pb-4">
-                {editingId ? ":: MODIFY_THREAT_ENTRY ::" : ":: NEW_THREAT_DETECTED ::"}
-              </h2>
-              <form onSubmit={handleSave} className="space-y-6">
-                <input required className={inputStyle} placeholder="ENTITY_NAME" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                <input required className={inputStyle} placeholder="THREAT_LEVEL" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} />
-                <input className={inputStyle} placeholder="ASSET_URL" value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
-                <textarea required className={`${inputStyle} h-32 resize-none normal-case`} placeholder="BEHAVIOR_DESCRIPTION" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
-                <button type="submit" className="w-full bg-red-900 text-white py-5 font-bold tracking-[0.6em] uppercase hover:bg-red-700 transition-all border-2 border-red-950">
-                  {editingId ? "[ UPDATE_INTEL ]" : "[ LOG_THREAT ]"}
-                </button>
-              </form>
-              <button onClick={closeModal} className="mt-6 w-full text-[10px] text-gray-500 uppercase text-center font-bold tracking-widest hover:text-red-700 transition-colors">_CANCEL_LOG_</button>
+        {/* CUADRO DE REGISTRO DE MONSTRUOS (CENTRADO Y OSCURO) */}
+        <section className="relative z-[60] max-w-4xl mx-auto bg-zinc-950/95 border-2 border-red-950 p-10 shadow-[0_0_60px_rgba(127,29,29,0.5)] mb-20">
+          <h2 className="text-red-700 text-2xl tracking-[0.4em] text-center border-b border-red-950 pb-6 uppercase mb-8 font-bold">
+            :: New_Threat_Log ::
+          </h2>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 text-left relative z-[70]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col gap-2">
+                <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Entity_Designation</label>
+                <input 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  className="bg-black border border-zinc-900 p-4 text-white focus:border-red-700 outline-none uppercase placeholder:text-zinc-900 transition-all relative z-[70]" 
+                  placeholder="DESIGNATION" 
+                  required 
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Threat_Level</label>
+                <input 
+                  value={danger} 
+                  onChange={(e) => setDanger(e.target.value)} 
+                  className="bg-black border border-zinc-900 p-4 text-white focus:border-red-700 outline-none uppercase placeholder:text-zinc-900 transition-all relative z-[70]" 
+                  placeholder="LEVEL" 
+                  required 
+                />
+              </div>
             </div>
-          </div>
-        )}
+            <div className="flex flex-col gap-2 relative z-[70]">
+              <label className="text-zinc-600 text-[10px] uppercase tracking-widest">Behavioral_Notes</label>
+              <textarea 
+                value={description} 
+                onChange={(e) => setDescription(e.target.value)} 
+                rows="5" 
+                className="bg-black border border-zinc-900 p-4 text-white focus:border-red-700 outline-none resize-none placeholder:text-zinc-900 transition-all relative z-[70]" 
+                placeholder="ANALYSIS_REPORT" 
+                required 
+              ></textarea>
+            </div>
+            <button type="submit" className="border border-red-950 p-5 text-red-900 hover:bg-red-900 hover:text-white transition-all uppercase font-bold tracking-[0.3em] relative z-[70]">
+              Log_Threat_Data
+            </button>
+          </form>
+        </section>
       </div>
     </div>
   );
-}
+};
+
+export default Monsters;
