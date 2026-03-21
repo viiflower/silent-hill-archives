@@ -28,7 +28,7 @@ const Characters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // usamos 'image' porque asi aparece en tu alter table de sql
+      // usamos 'image' porque asi aparece en tu tabla characters de sql
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),
@@ -39,7 +39,7 @@ const Characters = () => {
       setShowForm(false);
       fetchCharacters();
     } catch (err) {
-      alert("server_error_500: error al archivar personaje");
+      alert("server_error_500: fallo al guardar en db");
     }
   };
 
