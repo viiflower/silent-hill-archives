@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const API_URL = "https://silent-hill-archives-backend.onrender.com"; 
+  const API_URL = "https://silent-hill-archives.onrender.com"; 
 
   const handleAction = async (e) => {
     e.preventDefault();
@@ -41,7 +41,6 @@ const Login = () => {
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
       <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
 
-      {/* CUADRO CENTRADO CON FONDO CLARO */}
       <div className="relative z-[60] w-full max-w-md bg-zinc-200 border-2 border-zinc-900 p-10 shadow-2xl">
         <h2 className="text-black text-2xl tracking-widest text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
           SILENT HILL ARCHIVE
@@ -54,8 +53,9 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* EL TEXTO ES NEGRO PARA SER VISIBLE SIEMPRE */
-              className="bg-white border border-zinc-900 p-3 text-black font-bold outline-none uppercase placeholder:text-zinc-400"
+              /* FORZADO A NEGRO PURO */
+              style={{ color: '#000000' }}
+              className="bg-white border border-zinc-900 p-3 font-bold outline-none uppercase"
               placeholder="ENTER_NAME"
               required
             />
@@ -67,8 +67,9 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* LOS PUNTOS DE CONTRASEÑA TAMBIÉN SERÁN NEGROS */
-              className="bg-white border border-zinc-900 p-3 text-black font-bold outline-none"
+              /* FORZADO A NEGRO PURO */
+              style={{ color: '#000000' }}
+              className="bg-white border border-zinc-900 p-3 font-bold outline-none"
               placeholder="********"
               required
             />
