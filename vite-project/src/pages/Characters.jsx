@@ -74,7 +74,7 @@ const Characters = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-6 text-left">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <input value={name} onChange={(e) => setName(e.target.value)} className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none uppercase" placeholder="NAME" required />
-              <input value={status} onChange={(e) => setStatus(e.target.value)} className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none uppercase" placeholder="STATUS" required />
+              <input value={status} onChange={(e) => setStatus(e.target.value)} className="bg-black border border-zinc-900 p-4 text-white focus:border-red-900 outline-none uppercase" placeholder="STATUS" required />
             </div>
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="5" className="bg-black border border-zinc-800 p-4 text-white focus:border-red-900 outline-none resize-none" placeholder="OBSERVATIONS" required></textarea>
             <button type="submit" className="border border-zinc-800 p-5 text-zinc-500 hover:bg-white hover:text-black transition-all uppercase font-bold tracking-[0.3em]">Archive_Data_Entry</button>
