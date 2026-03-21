@@ -9,7 +9,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const API_URL = "https://silent-hill-archives.onrender.com"; 
+  const API_URL = "https://silent-hill-archives-backend.onrender.com"; 
 
   const handleAction = async (e) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ const Login = () => {
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("REGISTRO EXITOSO");
+          alert("REGISTRO EXITOSO: INICIE CONEXIÓN");
           setIsRegistering(false);
           setUsername('');
           setPassword('');
@@ -33,7 +33,8 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      alert("ERROR: NO SE PUDO ESTABLECER CONEXIÓN");
+      const msg = error.response?.data?.error || "ERROR DE CONEXIÓN";
+      alert(`SISTEMA: ${msg}`);
     }
   };
 
@@ -41,41 +42,41 @@ const Login = () => {
     <div className="relative min-h-screen w-full flex items-center justify-center bg-black font-mono">
       <img src={fog} alt="fog" className="absolute inset-0 w-full h-full object-cover opacity-40 z-0" />
 
-      <div className="relative z-[60] w-full max-w-md bg-zinc-200 border-2 border-zinc-900 p-10 shadow-2xl">
-        <h2 className="text-black text-2xl tracking-widest text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
+      <div className="relative z-[60] w-full max-w-md bg-white border-4 border-zinc-900 p-10 shadow-2xl">
+        <h2 className="text-black text-2xl tracking-tighter text-center border-b-2 border-zinc-900 pb-4 uppercase font-bold mb-6">
           SILENT HILL ARCHIVE
         </h2>
 
         <form onSubmit={handleAction} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1 text-left">
-            <label className="text-zinc-800 text-[10px] uppercase font-bold">SPECIFY_IDENTITY</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-zinc-700 text-[10px] uppercase font-bold text-left">SPECIFY_IDENTITY</label>
             <input 
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* FORZADO A NEGRO PURO */
+              /* ESTILO FORZADO PARA TEXTO NEGRO */
               style={{ color: '#000000' }}
-              className="bg-white border border-zinc-900 p-3 font-bold outline-none uppercase"
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white uppercase"
               placeholder="ENTER_NAME"
               required
             />
           </div>
 
-          <div className="flex flex-col gap-1 text-left">
-            <label className="text-zinc-800 text-[10px] uppercase font-bold">ACCESS_KEY</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-zinc-700 text-[10px] uppercase font-bold text-left">ACCESS_KEY</label>
             <input 
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* FORZADO A NEGRO PURO */
+              /* ESTILO FORZADO PARA TEXTO NEGRO */
               style={{ color: '#000000' }}
-              className="bg-white border border-zinc-900 p-3 font-bold outline-none"
+              className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="********"
               required
             />
           </div>
 
-          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold text-sm">
+          <button type="submit" className="bg-zinc-900 py-4 text-white hover:bg-red-900 transition-colors uppercase font-bold tracking-widest text-sm">
             {isRegistering ? "SAVE_DATA" : "ESTABLISH_CONNECTION"}
           </button>
         </form>
@@ -84,7 +85,7 @@ const Login = () => {
           onClick={() => setIsRegistering(!isRegistering)}
           className="mt-6 text-zinc-900 text-[10px] uppercase underline font-bold hover:text-red-700 block w-full text-center"
         >
-          {isRegistering ? "[ CANCEL_OPERATION ]" : "[ CREATE_NEW_ARCHIVE ]"}
+          {isRegistering ? "[ RETURN_TO_LOGIN ]" : "[ CREATE_NEW_ARCHIVE ]"}
         </button>
       </div>
     </div>
