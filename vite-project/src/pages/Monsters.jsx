@@ -63,9 +63,11 @@ const Monsters = () => {
     }
   };
 
-  // ESTILO DE LOS BOTONES DE NAVEGACIÓN (Como LOGOUT)
-  const navButtonStyle = "text-[10px] uppercase text-white/70 hover:text-white transition-colors no-underline tracking-widest";
-  const activeNavButtonStyle = "text-[10px] uppercase text-white no-underline tracking-widest font-bold";
+  // --- NUEVOS ESTILOS DE BOTONES DE NAVEGACIÓN ---
+  // Estilo base para los botones (como EDIT/DELETE)
+  const navButtonStyle = "px-4 py-1 border border-white/40 text-[10px] uppercase text-white/70 hover:bg-red-700 hover:border-red-700 hover:text-white transition-all no-underline tracking-widest font-bold";
+  // Estilo para el botón de la página ACTIVA (borde completo y texto blanco)
+  const activeNavButtonStyle = "px-4 py-1 border-2 border-white text-[10px] uppercase text-white no-underline tracking-widest font-bold bg-white/5";
 
   const inputStyle = "bg-white border-2 border-zinc-300 w-full p-3 text-black outline-none uppercase text-sm font-bold";
 
@@ -73,13 +75,14 @@ const Monsters = () => {
     <div className="relative min-h-screen w-full bg-black text-white font-mono">
       <img src={monstersBg} className="fixed inset-0 w-full h-full object-cover z-0 opacity-60" alt="bg" />
       
-      {/* BARRA DE NAVEGACIÓN REESTILIZADA */}
-      <div className="fixed top-0 left-0 w-full bg-black/80 z-[100] border-b border-red-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
-        <nav className="flex gap-8 items-center">
-          <Link to="/characters" className={navButtonStyle}> :: characters :: </Link>
-          <Link to="/monsters" className={activeNavButtonStyle}> :: monsters :: </Link>
+      {/* BARRA DE NAVEGACIÓN CON BOTONES REESTILIZADOS */}
+      <div className="fixed top-0 left-0 w-full bg-black/90 z-[100] border-b border-red-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
+        <nav className="flex gap-4 items-center">
+          <Link to="/characters" className={navButtonStyle}> [ characters ] </Link>
+          <Link to="/monsters" className={activeNavButtonStyle}> [ monsters ] </Link>
         </nav>
-        <button onClick={() => { localStorage.removeItem('user'); window.location.href = '/'; }} className="text-[10px] uppercase text-white/70 hover:text-white transition-colors tracking-widest"> :: logout :: </button>
+        {/* El botón de logout lo mantenemos simple como texto, como estaba en tu imagen */}
+        <button onClick={() => { localStorage.removeItem('user'); window.location.href = '/'; }} className="text-[10px] uppercase text-white/70 hover:text-white transition-colors tracking-widest no-underline"> :: logout :: </button>
       </div>
 
       <div className="relative z-10 p-8 pt-24 flex flex-col items-center">
@@ -105,8 +108,8 @@ const Monsters = () => {
                 <div className="text-left font-bold uppercase text-red-600">{mon.name}<br/><span className="text-[10px] text-zinc-500">danger: {mon.danger}</span></div>
                 <div className="text-sm text-zinc-300 text-left line-clamp-3">{mon.description}</div>
                 <div className="flex flex-col gap-2">
-                   <button onClick={() => openEditModal(mon)} className="border border-white/50 text-[10px] uppercase p-1">edit</button>
-                   <button onClick={() => handleDelete(mon.monster_id, mon.name)} className="border border-red-600 text-red-500 text-[10px] uppercase p-1">delete</button>
+                   <button onClick={() => openEditModal(mon)} className="border border-white/50 text-[10px] uppercase p-1 hover:bg-white hover:text-black">edit</button>
+                   <button onClick={() => handleDelete(mon.monster_id, mon.name)} className="border border-red-600 text-red-500 text-[10px] uppercase p-1 hover:bg-red-900 hover:text-white">delete</button>
                 </div>
               </div>
             ))}
@@ -125,7 +128,7 @@ const Monsters = () => {
                 <input value={danger} onChange={(e) => setDanger(e.target.value)} className={inputStyle} placeholder="danger_level" required />
                 <input value={image} onChange={(e) => setImage(e.target.value)} className={inputStyle} placeholder="image_url" required />
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="analysis" required></textarea>
-                <button type="submit" className="bg-red-900 text-white p-3 font-bold uppercase"> {isEditing ? 'update' : 'save'} </button>
+                <button type="submit" className="bg-red-900 text-white p-3 font-bold uppercase hover:bg-black"> {isEditing ? 'update' : 'save'} </button>
               </form>
             </div>
           </div>
