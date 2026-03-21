@@ -9,6 +9,7 @@ const Monsters = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
+  // estados del formulario
   const [editId, setEditId] = useState(null);
   const [name, setName] = useState('');
   const [danger, setDanger] = useState('');
@@ -24,7 +25,7 @@ const Monsters = () => {
     } catch (err) { setMonsters([]); }
   };
 
-  useEffect(() => { fetchMonsters(); }, []);
+  useEffect(() => { fetchCharacters(); }, []); // cargamos al iniciar
 
   const openAddModal = () => {
     setEditId(null);
@@ -34,7 +35,7 @@ const Monsters = () => {
   };
 
   const openEditModal = (mon) => {
-    setEditId(mon.monster_id);
+    setEditId(mon.monster_id); // importante: usar monster_id
     setName(mon.name);
     setDanger(mon.danger);
     setImage(mon.image);
@@ -47,13 +48,28 @@ const Monsters = () => {
     e.preventDefault();
     try {
       if (isEditing) {
-        await axios.put(`${API_URL}/${editId}`, { name, danger, image, description });
+        // peticion para editar
+        await axios.put(`${API_URL}/${editId}`, { 
+          name: name.toUpperCase(), 
+          danger: danger.toUpperCase(), 
+          image, 
+          description 
+        });
       } else {
-        await axios.post(API_URL, { name, danger, image, description });
+        // peticion para crear nuevo
+        await axios.post(API_URL, { 
+          name: name.toUpperCase(), 
+          danger: danger.toUpperCase(), 
+          image, 
+          description 
+        });
       }
       setIsModalOpen(false);
       fetchMonsters();
-    } catch (err) { alert("error en la operacion"); }
+    } catch (err) { 
+      console.error(err);
+      alert("error en la operacion de monstruos"); 
+    }
   };
 
   const handleDelete = async (id, mName) => {
@@ -83,7 +99,7 @@ const Monsters = () => {
         <h1 className="text-3xl tracking-[0.4em] mb-12 uppercase font-bold text-red-600">s.h._database_threats</h1>
         
         <div className="flex gap-4 mb-10 z-20">
-          <button onClick={openAddModal} className="px-5 py-2 border-2 bg-white text-black border-white uppercase text-xs font-bold hover:bg-red-700 hover:text-white hover:border-red-700 transition-all"> 
+          <button onClick={openAddModal} className="px-5 py-2 border-2 bg-white text-black border-white uppercase text-xs font-bold hover:bg-red-700 hover:text-white transition-all"> 
             [ add_new_threat ] 
           </button>
           <button onClick={() => setShowList(!showList)} className={`px-5 py-2 border-2 uppercase text-xs font-bold transition-all ${showList ? 'bg-red-700 border-red-700 text-white' : 'bg-white text-black border-white'}`}> 
@@ -111,19 +127,19 @@ const Monsters = () => {
         )}
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4">
-            <div className="bg-white p-8 w-full max-w-lg border-4 border-red-900 relative">
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-2 right-4 text-black font-bold">X</button>
-              <h2 className="text-black font-bold uppercase mb-4 text-center border-b border-black">
-                {isEditing ? 'edit_threat_data' : 'add_new_threat_data'}
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 shadow-[0_0_50px_rgba(127,29,29,0.5)]">
+            <div className="bg-white p-8 w-full max-w-lg border-4 border-red-900 relative shadow-2xl">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-2 right-4 text-black font-bold hover:text-red-600 transition-colors">X</button>
+              <h2 className="text-black font-bold uppercase mb-6 text-center border-b-2 border-black pb-2">
+                {isEditing ? 'modify_threat_data' : 'register_new_threat'}
               </h2>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input value={name} onChange={(e) => setName(e.target.value)} className={inputStyle} placeholder="designation" required />
                 <input value={danger} onChange={(e) => setDanger(e.target.value)} className={inputStyle} placeholder="danger_level" required />
                 <input value={image} onChange={(e) => setImage(e.target.value)} className={inputStyle} placeholder="image_url" required />
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="analysis" required></textarea>
-                <button type="submit" className="bg-red-900 text-white p-3 font-bold uppercase">
-                  {isEditing ? 'update_database' : 'log_threat_to_archives'}
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="analysis_report" required></textarea>
+                <button type="submit" className="bg-red-900 text-white p-4 font-bold uppercase hover:bg-black transition-all">
+                  {isEditing ? 'update_archives' : 'log_to_database'}
                 </button>
               </form>
             </div>
