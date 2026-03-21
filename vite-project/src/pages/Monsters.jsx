@@ -28,19 +28,19 @@ const Monsters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // enviamos 'danger', 'description', 'image' y 'encounter_location' segun tu sql
+      // incluimos 'encounter_location' y usamos 'danger' segun tu sql
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         danger: dangerlevel.toUpperCase(),
         description: description,
         image: imageurl,
-        encounter_location: "UNKNOWN_SECTOR"
+        encounter_location: "UNKNOWN_AREA"
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);
       fetchMonsters();
     } catch (err) {
-      alert("server_error_500: fallo al guardar en db");
+      alert("server_error_500: fallo al registrar amenaza");
     }
   };
 
@@ -59,8 +59,8 @@ const Monsters = () => {
       <div className="relative z-10 p-8 pt-24 flex flex-col items-center">
         <h1 className="text-3xl tracking-[0.4em] mb-12 uppercase font-bold text-red-100">s.h._database_threats</h1>
         <div className="flex gap-4 mb-10 z-20">
-          <button onClick={() => { setShowForm(!showForm); setShowList(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showForm ? 'bg-red-700 text-white border-red-700' : 'bg-white text-black border-white'}`}> [ add_new_monster ] </button>
-          <button onClick={() => { setShowList(!showList); setShowForm(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showList ? 'bg-red-700 text-white border-red-700' : 'bg-white text-black border-white'}`}> [ view_threats ] </button>
+          <button onClick={() => { setShowForm(!showForm); setShowList(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showForm ? 'bg-red-700 text-white' : 'bg-white text-black'}`}> [ add_new_monster ] </button>
+          <button onClick={() => { setShowList(!showList); setShowForm(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showList ? 'bg-red-700 text-white' : 'bg-white text-black'}`}> [ view_threats ] </button>
         </div>
         {showForm && (
           <section className="w-full max-w-xl bg-white p-8 mb-12 border-4 border-red-950">
