@@ -5,11 +5,10 @@ import charactersBg from "../assets/silenthill3login.gif";
 
 const Characters = () => {
   const [characters, setCharacters] = useState([]);
-  const [showList, setShowList] = useState(true); // controla si se ve la tabla
-  const [isModalOpen, setIsModalOpen] = useState(false); // controla el modal
-  const [isEditing, setIsEditing] = useState(false); // diferencia entre agregar y editar
+  const [showList, setShowList] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   
-  // campos del formulario
   const [editId, setEditId] = useState(null);
   const [name, setName] = useState('');
   const [status, setStatus] = useState('');
@@ -27,7 +26,6 @@ const Characters = () => {
 
   useEffect(() => { fetchCharacters(); }, []);
 
-  // abrir modal para agregar (vacio)
   const openAddModal = () => {
     setEditId(null);
     setName(''); setStatus(''); setImage(''); setDescription('');
@@ -35,7 +33,6 @@ const Characters = () => {
     setIsModalOpen(true);
   };
 
-  // abrir modal para editar (con info)
   const openEditModal = (char) => {
     setEditId(char.char_id);
     setName(char.name);
@@ -68,18 +65,23 @@ const Characters = () => {
     }
   };
 
+  // ESTILO DE LOS BOTONES DE NAVEGACIÓN (Como LOGOUT)
+  const navButtonStyle = "text-[10px] uppercase text-white/70 hover:text-white transition-colors no-underline tracking-widest";
+  const activeNavButtonStyle = "text-[10px] uppercase text-white no-underline tracking-widest font-bold";
+
   const inputStyle = "bg-white border-2 border-zinc-300 w-full p-3 text-black outline-none uppercase text-sm font-bold";
 
   return (
     <div className="relative min-h-screen w-full bg-black text-white font-mono">
       <img src={charactersBg} className="fixed inset-0 w-full h-full object-cover z-0 opacity-60" alt="bg" />
       
+      {/* BARRA DE NAVEGACIÓN REESTILIZADA */}
       <div className="fixed top-0 left-0 w-full bg-black/80 z-[100] border-b border-zinc-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
-        <nav className="flex gap-6">
-          <Link to="/characters" className="text-white font-bold uppercase text-sm border-b-2 border-white"> [ characters ] </Link>
-          <Link to="/monsters" className="text-white/70 hover:text-white uppercase text-sm"> [ monsters ] </Link>
+        <nav className="flex gap-8 items-center">
+          <Link to="/characters" className={activeNavButtonStyle}> :: characters :: </Link>
+          <Link to="/monsters" className={navButtonStyle}> :: monsters :: </Link>
         </nav>
-        <button onClick={() => { localStorage.removeItem('user'); window.location.href = '/'; }} className="text-[10px] uppercase"> :: logout :: </button>
+        <button onClick={() => { localStorage.removeItem('user'); window.location.href = '/'; }} className="text-[10px] uppercase text-white/70 hover:text-white transition-colors tracking-widest"> :: logout :: </button>
       </div>
 
       <div className="relative z-10 p-8 pt-24 flex flex-col items-center">
@@ -113,7 +115,6 @@ const Characters = () => {
           </div>
         )}
 
-        {/* modal unico para agregar y editar */}
         {isModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4">
             <div className="bg-white p-8 w-full max-w-lg border-4 border-black relative">
