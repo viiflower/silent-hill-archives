@@ -1,23 +1,57 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Characters from "./pages/Characters";
-import Monsters from "./pages/Monsters";
-import Navbar from "./components/Navbar";
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Characters from './pages/Characters';
+import Monsters from './pages/Monsters';
+import AddCharacter from './pages/AddCharacter';
+import AddMonster from './pages/AddMonster';
 
-function App() {
+// Un componente de ruta protegida para que nadie entre sin login
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem('user');
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
+const App = () => {
   return (
-    <Router>
+    <div className="App">
       <Routes>
-        {/* La página de Login normalmente no lleva Navbar */}
+        {/* Ruta de Login (Pública) */}
         <Route path="/" element={<Login />} />
+
+        {/* Rutas Protegidas (Requieren Login) */}
+        <Route path="/characters" element={
+          <ProtectedRoute>
+            <Characters />
+          </ProtectedRoute>
+        } />
         
-        {/* Las páginas de contenido sí llevan el Navbar arriba */}
-        <Route path="/characters" element={<><Navbar /><Characters /></>} />
-        <Route path="/monsters" element={<><Navbar /><Monsters /></>} />
+        <Route path="/monsters" element={
+          <ProtectedRoute>
+            <Monsters />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/add-character" element={
+          <ProtectedRoute>
+            <AddCharacter />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/add-monster" element={
+          <ProtectedRoute>
+            <AddMonster />
+          </ProtectedRoute>
+        } />
+
+        {/* Si el usuario escribe una ruta que no existe, mándalo al login o a characters */}
+        <Route path="*" element={<Navigate to="/characters" replace />} />
       </Routes>
-    </Router>
+    </div>
   );
-}
+};
 
 export default App;
