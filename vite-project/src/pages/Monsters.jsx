@@ -9,7 +9,6 @@ const Monsters = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   
-  // estados del formulario
   const [editId, setEditId] = useState(null);
   const [name, setName] = useState('');
   const [danger, setDanger] = useState('');
@@ -18,6 +17,7 @@ const Monsters = () => {
 
   const API_URL = 'https://silent-hill-archives.onrender.com/api/monsters';
 
+  // funcion corregida (antes decia fetchCharacters)
   const fetchMonsters = async () => {
     try {
       const res = await axios.get(API_URL);
@@ -25,58 +25,40 @@ const Monsters = () => {
     } catch (err) { setMonsters([]); }
   };
 
-  useEffect(() => { fetchCharacters(); }, []); // cargamos al iniciar
+  // useEffect corregido para usar fetchMonsters
+  useEffect(() => { 
+    fetchMonsters(); 
+  }, []);
 
   const openAddModal = () => {
-    setEditId(null);
-    setName(''); setDanger(''); setImage(''); setDescription('');
-    setIsEditing(false);
-    setIsModalOpen(true);
+    setEditId(null); setName(''); setDanger(''); setImage(''); setDescription('');
+    setIsEditing(false); setIsModalOpen(true);
   };
 
   const openEditModal = (mon) => {
-    setEditId(mon.monster_id); // importante: usar monster_id
-    setName(mon.name);
-    setDanger(mon.danger);
-    setImage(mon.image);
-    setDescription(mon.description);
-    setIsEditing(true);
-    setIsModalOpen(true);
+    setEditId(mon.monster_id); setName(mon.name); setDanger(mon.danger);
+    setImage(mon.image); setDescription(mon.description);
+    setIsEditing(true); setIsModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (isEditing) {
-        // peticion para editar
-        await axios.put(`${API_URL}/${editId}`, { 
-          name: name.toUpperCase(), 
-          danger: danger.toUpperCase(), 
-          image, 
-          description 
-        });
+        await axios.put(`${API_URL}/${editId}`, { name, danger, image, description });
       } else {
-        // peticion para crear nuevo
-        await axios.post(API_URL, { 
-          name: name.toUpperCase(), 
-          danger: danger.toUpperCase(), 
-          image, 
-          description 
-        });
+        await axios.post(API_URL, { name, danger, image, description });
       }
       setIsModalOpen(false);
-      fetchMonsters();
-    } catch (err) { 
-      console.error(err);
-      alert("error en la operacion de monstruos"); 
-    }
+      fetchMonsters(); // corregido aqui tambien
+    } catch (err) { alert("error en la operacion"); }
   };
 
   const handleDelete = async (id, mName) => {
-    if (window.confirm(`¿eliminar permanentemente a ${mName}?`)) {
+    if (window.confirm(`¿eliminar a ${mName}?`)) {
       try {
         await axios.delete(`${API_URL}/${id}`);
-        fetchMonsters();
+        fetchMonsters(); // corregido aqui tambien
       } catch (err) { alert("error al borrar"); }
     }
   };
@@ -127,19 +109,26 @@ const Monsters = () => {
         )}
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 shadow-[0_0_50px_rgba(127,29,29,0.5)]">
-            <div className="bg-white p-8 w-full max-w-lg border-4 border-red-900 relative shadow-2xl">
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-2 right-4 text-black font-bold hover:text-red-600 transition-colors">X</button>
-              <h2 className="text-black font-bold uppercase mb-6 text-center border-b-2 border-black pb-2">
-                {isEditing ? 'modify_threat_data' : 'register_new_threat'}
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4">
+            <div className="bg-white p-8 w-full max-w-lg border-4 border-red-900 relative">
+              {/* x corregida para cerrar modal */}
+              <button 
+                type="button"
+                onClick={() => setIsModalOpen(false)} 
+                className="absolute top-2 right-4 text-black font-bold text-xl hover:text-red-600"
+              >
+                X
+              </button>
+              <h2 className="text-black font-bold uppercase mb-4 text-center border-b border-black">
+                {isEditing ? 'edit_threat' : 'new_threat_data'}
               </h2>
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <input value={name} onChange={(e) => setName(e.target.value)} className={inputStyle} placeholder="designation" required />
                 <input value={danger} onChange={(e) => setDanger(e.target.value)} className={inputStyle} placeholder="danger_level" required />
                 <input value={image} onChange={(e) => setImage(e.target.value)} className={inputStyle} placeholder="image_url" required />
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="analysis_report" required></textarea>
-                <button type="submit" className="bg-red-900 text-white p-4 font-bold uppercase hover:bg-black transition-all">
-                  {isEditing ? 'update_archives' : 'log_to_database'}
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="analysis" required></textarea>
+                <button type="submit" className="bg-red-900 text-white p-3 font-bold uppercase hover:bg-black transition-colors">
+                  {isEditing ? 'update_archive' : 'log_to_archives'}
                 </button>
               </form>
             </div>
