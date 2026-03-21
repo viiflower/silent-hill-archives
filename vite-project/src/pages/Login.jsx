@@ -9,7 +9,8 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const API_URL = "https://silent-hill-archives-backend.onrender.com"; 
+  // URL DE TU WEB SERVICE (La que me pasaste: archives.onrender.com)
+  const API_URL = "https://silent-hill-archives.onrender.com"; 
 
   const handleAction = async (e) => {
     e.preventDefault();
@@ -33,8 +34,7 @@ const Login = () => {
       }
     } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.error || "ERROR DE CONEXIÓN";
-      alert(`SISTEMA: ${msg}`);
+      alert("ERROR: FALLO EN LA CONEXIÓN CON EL ARCHIVO");
     }
   };
 
@@ -54,7 +54,7 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* ESTILO FORZADO PARA TEXTO NEGRO */
+              /* ESTO HACE QUE LA LETRA SEA NEGRA Y SE VEA SIEMPRE */
               style={{ color: '#000000' }}
               className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white uppercase"
               placeholder="ENTER_NAME"
@@ -68,7 +68,7 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* ESTILO FORZADO PARA TEXTO NEGRO */
+              /* ESTO HACE QUE LOS PUNTOS DE LA CLAVE SEAN NEGROS */
               style={{ color: '#000000' }}
               className="bg-zinc-100 border-2 border-zinc-900 p-3 font-bold outline-none focus:bg-white"
               placeholder="********"
