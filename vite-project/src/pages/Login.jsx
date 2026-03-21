@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import fog from "../assets/silenthill2fog.gif";
 
 const Login = () => {
@@ -8,32 +8,36 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  const API_URL = "https://silent-hill-archives.onrender.com"; 
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://tu-api-render.onrender.com/api/login', {
+      const response = await axios.post(`${API_URL}/api/login`, {
         username: username.toUpperCase(),
         password
       });
-      if (response.data.message === "ACCESO_CONCEDIDO") {
-        localStorage.setItem('user', response.data.user);
+      
+      if (response.data) {
+        localStorage.setItem('user', username.toUpperCase());
         navigate('/characters');
       }
     } catch (error) {
-      alert("IDENTIDAD NO RECONOCIDA");
+      console.error(error);
+      alert("IDENTIDAD NO RECONOCIDA O ERROR DE CONEXIÓN");
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden bg-black font-mono">
       {/* EL GIF DE FONDO */}
       <img 
         src={fog} 
         alt="fog" 
-        className="absolute inset-0 w-full h-full object-cover opacity-40 z-0"
+        className="absolute inset-0 w-full h-full object-cover opacity-40 z-0 pointer-events-none"
       />
 
-      {/* EL CUADRO DE LOGIN SOBRE LA NIEBLA */}
+      {/* EL CUADRO DE LOGIN CENTRADO */}
       <form 
         onSubmit={handleLogin} 
         className="relative z-[60] w-full max-w-md bg-zinc-950/90 border-2 border-zinc-900 p-10 shadow-[0_0_50px_rgba(0,0,0,0.9)] flex flex-col gap-6"
@@ -66,9 +70,22 @@ const Login = () => {
           />
         </div>
 
-        <button type="submit" className="mt-4 border border-zinc-800 py-4 text-zinc-500 hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-[0.2em] text-sm font-bold">
-          Establish_Connection
-        </button>
+        <div className="flex flex-col gap-4 mt-4">
+          <button 
+            type="submit" 
+            className="border border-zinc-800 py-4 text-zinc-500 hover:bg-white hover:text-black transition-all duration-300 uppercase tracking-[0.2em] text-sm font-bold"
+          >
+            Establish_Connection
+          </button>
+
+          {/* BOTÓN DE CREAR CUENTA REINSTALADO */}
+          <Link 
+            to="/register" 
+            className="text-center text-zinc-600 hover:text-red-900 text-xs uppercase tracking-widest transition-colors"
+          >
+            [ Create_New_Archive ]
+          </Link>
+        </div>
       </form>
     </div>
   );
