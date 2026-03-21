@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS - IMPORTANTE: Verifica que esta URL sea la que usas en el navegador
+// Configuración de CORS
 app.use(cors({
   origin: 'https://silent-hill-archives-1.onrender.com', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -24,7 +24,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// --- RUTA DE LOGIN (La que faltaba) ---
+// --- RUTA DE LOGIN ---
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -32,19 +32,18 @@ app.post("/api/login", async (req, res) => {
     const result = await pool.query("SELECT * FROM users WHERE username = $1", [userUpper]);
     
     if (result.rows.length > 0) {
-      const match = await bcrypt.compare(password, result.rows[0].password_hash || result.rows[0].password);
+      const match = await bcrypt.compare(password, result.rows[0].password);
       if (match) {
         return res.status(200).json({ message: "acceso_ok", user: userUpper });
       }
     }
     res.status(401).json({ error: "credenciales_invalidas" });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "error_servidor" });
   }
 });
 
-// --- RUTAS DE PERSONAJES ---
+// --- CRUD DE PERSONAJES (Characters) ---
 app.get('/api/characters', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM characters ORDER BY char_id DESC');
@@ -63,7 +62,25 @@ app.post('/api/characters', async (req, res) => {
   } catch (err) { res.status(500).json({ error: 'error_save' }); }
 });
 
-// --- RUTAS DE MONSTRUOS (Sincronizado con tu pgAdmin) ---
+app.put('/api/characters/:id', async (req, res) => {
+  const { name, status, image, description } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE characters SET name=$1, status=$2, image=$3, description=$4 WHERE char_id=$5 RETURNING *',
+      [name.toUpperCase(), status.toUpperCase(), image, description, req.params.id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/characters/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM characters WHERE char_id = $1', [req.params.id]);
+    res.json({ message: "ok" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- CRUD DE MONSTRUOS (Monsters) ---
 app.get('/api/monsters', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM monsters ORDER BY monster_id DESC');
@@ -79,9 +96,18 @@ app.post('/api/monsters', async (req, res) => {
       [name.toUpperCase(), danger.toUpperCase(), description, image]
     );
     res.status(201).json(result.rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: 'error_save', detail: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: 'error_save' }); }
+});
+
+app.put('/api/monsters/:id', async (req, res) => {
+  const { name, danger, image, description } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE monsters SET name=$1, danger=$2, image=$3, description=$4 WHERE monster_id=$5 RETURNING *',
+      [name.toUpperCase(), danger.toUpperCase(), image, description, req.params.id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.delete('/api/monsters/:id', async (req, res) => {
@@ -92,4 +118,4 @@ app.delete('/api/monsters/:id', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => { console.log(`Servidor activo en puerto ${PORT}`); });
+app.listen(PORT, '0.0.0.0', () => { console.log(`Servidor en puerto ${PORT}`); });
