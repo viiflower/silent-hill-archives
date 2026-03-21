@@ -21,10 +21,7 @@ const Monsters = () => {
     try {
       const res = await axios.get(API_URL);
       setMonsters(Array.isArray(res.data) ? res.data : []);
-    } catch (err) { 
-      console.error("Error al cargar:", err);
-      setMonsters([]); 
-    }
+    } catch (err) { setMonsters([]); }
   };
 
   useEffect(() => { fetchMonsters(); }, []);
@@ -32,6 +29,16 @@ const Monsters = () => {
   const openAddModal = () => {
     setEditId(null); setName(''); setDanger(''); setImage(''); setDescription('');
     setIsEditing(false); setIsModalOpen(true);
+  };
+
+  const openEditModal = (mon) => {
+    setEditId(mon.monster_id);
+    setName(mon.name);
+    setDanger(mon.danger);
+    setImage(mon.image);
+    setDescription(mon.description);
+    setIsEditing(true);
+    setIsModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
@@ -44,10 +51,17 @@ const Monsters = () => {
       }
       setIsModalOpen(false);
       fetchMonsters();
-    } catch (err) { alert("Error en la operación: verifica la consola"); }
+    } catch (err) { alert("Error en la operación"); }
   };
 
-  const closeModal = () => { setIsModalOpen(false); };
+  const handleDelete = async (id, monName) => {
+    if (window.confirm(`¿Eliminar registro de ${monName}?`)) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        fetchMonsters();
+      } catch (err) { alert("Error al borrar"); }
+    }
+  };
 
   const inputStyle = "bg-white border-2 border-zinc-300 w-full p-3 text-black outline-none uppercase text-sm font-bold";
 
@@ -86,7 +100,7 @@ const Monsters = () => {
                 <div className="text-left font-bold uppercase text-red-600">{mon.name}<br/><span className="text-[10px] text-zinc-500">danger: {mon.danger}</span></div>
                 <div className="text-sm text-zinc-300 text-left line-clamp-3">{mon.description}</div>
                 <div className="flex flex-col gap-2">
-                   <button className="border border-white/50 text-[10px] uppercase p-1">edit</button>
+                   <button onClick={() => openEditModal(mon)} className="border border-white/50 text-[10px] uppercase p-1">edit</button>
                    <button onClick={() => handleDelete(mon.monster_id, mon.name)} className="border border-red-600 text-red-500 text-[10px] uppercase p-1">delete</button>
                 </div>
               </div>
@@ -97,7 +111,7 @@ const Monsters = () => {
         {isModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4">
             <div className="bg-white p-8 w-full max-w-lg border-4 border-red-900 relative">
-              <button type="button" onClick={closeModal} className="absolute top-2 right-4 text-black font-bold text-xl hover:text-red-600">X</button>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="absolute top-2 right-4 text-black font-bold text-xl hover:text-red-600">X</button>
               <h2 className="text-black font-bold uppercase mb-4 text-center border-b border-black">
                 {isEditing ? 'modify_threat' : 'new_threat_data'}
               </h2>
