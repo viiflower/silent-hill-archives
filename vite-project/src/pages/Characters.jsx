@@ -5,12 +5,12 @@ import charactersBg from "../assets/silenthill3login.gif";
 
 const Characters = () => {
   const [characters, setCharacters] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [showList, setShowList] = useState(true);
-  // estados para editar
-  const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState(null);
+  const [showList, setShowList] = useState(true); // controla si se ve la tabla
+  const [isModalOpen, setIsModalOpen] = useState(false); // controla el modal
+  const [isEditing, setIsEditing] = useState(false); // diferencia entre agregar y editar
+  
   // campos del formulario
+  const [editId, setEditId] = useState(null);
   const [name, setName] = useState('');
   const [status, setStatus] = useState('');
   const [image, setImage] = useState('');
@@ -22,53 +22,50 @@ const Characters = () => {
     try {
       const res = await axios.get(API_URL);
       setCharacters(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      setCharacters([]);
-    }
+    } catch (err) { setCharacters([]); }
   };
 
   useEffect(() => { fetchCharacters(); }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(API_URL, { name, status, description, image });
-      resetForm();
-      fetchCharacters();
-    } catch (err) { alert("error al guardar"); }
+  // abrir modal para agregar (vacio)
+  const openAddModal = () => {
+    setEditId(null);
+    setName(''); setStatus(''); setImage(''); setDescription('');
+    setIsEditing(false);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = async (id, charName) => {
-    if (window.confirm(`¿borrar registro de ${charName}?`)) {
-      try {
-        await axios.delete(`${API_URL}/${id}`);
-        fetchCharacters();
-      } catch (err) { alert("error al borrar"); }
-    }
-  };
-
-  const openEdit = (char) => {
+  // abrir modal para editar (con info)
+  const openEditModal = (char) => {
     setEditId(char.char_id);
     setName(char.name);
     setStatus(char.status);
     setImage(char.image);
     setDescription(char.description);
     setIsEditing(true);
+    setIsModalOpen(true);
   };
 
-  const handleUpdate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_URL}/${editId}`, { name, status, image, description });
-      setIsEditing(false);
-      resetForm();
+      if (isEditing) {
+        await axios.put(`${API_URL}/${editId}`, { name, status, image, description });
+      } else {
+        await axios.post(API_URL, { name, status, image, description });
+      }
+      setIsModalOpen(false);
       fetchCharacters();
-    } catch (err) { alert("error al actualizar"); }
+    } catch (err) { alert("error en la operacion"); }
   };
 
-  const resetForm = () => {
-    setName(''); setStatus(''); setImage(''); setDescription('');
-    setShowForm(false); setShowList(true);
+  const handleDelete = async (id, charName) => {
+    if (window.confirm(`¿eliminar registro de ${charName}?`)) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        fetchCharacters();
+      } catch (err) { alert("error al borrar"); }
+    }
   };
 
   const inputStyle = "bg-white border-2 border-zinc-300 w-full p-3 text-black outline-none uppercase text-sm font-bold";
@@ -77,7 +74,6 @@ const Characters = () => {
     <div className="relative min-h-screen w-full bg-black text-white font-mono">
       <img src={charactersBg} className="fixed inset-0 w-full h-full object-cover z-0 opacity-60" alt="bg" />
       
-      {/* barra navegacion */}
       <div className="fixed top-0 left-0 w-full bg-black/80 z-[100] border-b border-zinc-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
         <nav className="flex gap-6">
           <Link to="/characters" className="text-white font-bold uppercase text-sm border-b-2 border-white"> [ characters ] </Link>
@@ -89,13 +85,15 @@ const Characters = () => {
       <div className="relative z-10 p-8 pt-24 flex flex-col items-center">
         <h1 className="text-3xl tracking-[0.4em] mb-12 uppercase font-bold text-center">s.h._database_personnel</h1>
         
-        {/* botones seleccion blancos */}
         <div className="flex gap-4 mb-10 z-20">
-          <button onClick={() => { setShowForm(true); setShowList(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showForm ? 'bg-red-700 border-red-700' : 'bg-white text-black border-white'}`}> [ add_new ] </button>
-          <button onClick={() => { setShowList(true); setShowForm(false); }} className={`px-5 py-2 border-2 uppercase text-xs font-bold ${showList && !isEditing ? 'bg-red-700 border-red-700' : 'bg-white text-black border-white'}`}> [ view_db ] </button>
+          <button onClick={openAddModal} className="px-5 py-2 border-2 bg-white text-black border-white uppercase text-xs font-bold hover:bg-red-700 hover:text-white hover:border-red-700 transition-all"> 
+            [ add_new_entry ] 
+          </button>
+          <button onClick={() => setShowList(!showList)} className={`px-5 py-2 border-2 uppercase text-xs font-bold transition-all ${showList ? 'bg-red-700 border-red-700 text-white' : 'bg-white text-black border-white'}`}> 
+            {showList ? '[ hide_characters ]' : '[ view_characters ]'}
+          </button>
         </div>
 
-        {/* tabla de datos */}
         {showList && (
           <div className="w-full max-w-7xl bg-black/60 backdrop-blur-sm border border-white/20">
             <div className="grid grid-cols-[100px_1fr_2fr_120px] gap-4 p-4 border-b border-white/30 bg-zinc-900/50 uppercase text-xs font-bold">
@@ -107,7 +105,7 @@ const Characters = () => {
                 <div className="text-left font-bold uppercase">{char.name}<br/><span className="text-[10px] text-zinc-500">{char.status}</span></div>
                 <div className="text-sm text-zinc-300 text-left line-clamp-3">{char.description}</div>
                 <div className="flex flex-col gap-2">
-                  <button onClick={() => openEdit(char)} className="border border-white/50 text-[10px] uppercase p-1">edit</button>
+                  <button onClick={() => openEditModal(char)} className="border border-white/50 text-[10px] uppercase p-1">edit</button>
                   <button onClick={() => handleDelete(char.char_id, char.name)} className="border border-red-900 text-red-500 text-[10px] uppercase p-1">delete</button>
                 </div>
               </div>
@@ -115,18 +113,22 @@ const Characters = () => {
           </div>
         )}
 
-        {/* modal para editar */}
-        {isEditing && (
+        {/* modal unico para agregar y editar */}
+        {isModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-4">
-            <div className="bg-white p-8 w-full max-w-md border-4 border-black relative">
-              <button onClick={() => setIsEditing(false)} className="absolute top-2 right-4 text-black font-bold">X</button>
-              <h2 className="text-black font-bold uppercase mb-4 text-center border-b border-black">edit_entry</h2>
-              <form onSubmit={handleUpdate} className="flex flex-col gap-4">
-                <input value={name} onChange={(e) => setName(e.target.value)} className={inputStyle} placeholder="name" />
-                <input value={status} onChange={(e) => setStatus(e.target.value)} className={inputStyle} placeholder="status" />
-                <input value={image} onChange={(e) => setImage(e.target.value)} className={inputStyle} placeholder="image_url" />
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="3" className={inputStyle}></textarea>
-                <button type="submit" className="bg-black text-white p-3 font-bold uppercase">update</button>
+            <div className="bg-white p-8 w-full max-w-lg border-4 border-black relative">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-2 right-4 text-black font-bold">X</button>
+              <h2 className="text-black font-bold uppercase mb-4 text-center border-b border-black">
+                {isEditing ? 'edit_archive_entry' : 'add_new_archive_entry'}
+              </h2>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <input value={name} onChange={(e) => setName(e.target.value)} className={inputStyle} placeholder="name" required />
+                <input value={status} onChange={(e) => setStatus(e.target.value)} className={inputStyle} placeholder="status" required />
+                <input value={image} onChange={(e) => setImage(e.target.value)} className={inputStyle} placeholder="image_url" required />
+                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows="4" className={inputStyle} placeholder="observations" required></textarea>
+                <button type="submit" className="bg-black text-white p-3 font-bold uppercase">
+                  {isEditing ? 'update_database' : 'save_to_archives'}
+                </button>
               </form>
             </div>
           </div>
