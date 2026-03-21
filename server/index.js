@@ -6,14 +6,16 @@ require('dotenv').config();
 
 const app = express();
 
+// Configuración de CORS
 app.use(cors({
-  origin: 'https://silent-hill-archives-1.onrender.com',
+  origin: 'https://silent-hill-archives-1.onrender.com', // Tu URL de Frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
+// Conexión usando las variables separadas de Render
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -64,6 +66,66 @@ app.post("/api/register", async (req, res) => {
     console.error("ERROR DB:", err.message);
     if (err.code === '23505') return res.status(400).json({ error: "USUARIO_EXISTENTE" });
     res.status(500).json({ error: "ERROR_AL_GUARDAR_EN_DB" });
+  }
+});
+
+// --- RUTAS DE PERSONAJES (PERSONNEL) ---
+
+// Obtener todos los personajes
+app.get('/api/characters', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM characters ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'ERROR_AL_OBTENER_PERSONAJES' });
+  }
+});
+
+// Crear un personaje nuevo
+app.post('/api/characters', async (req, res) => {
+  const { name, status, imageUrl, description } = req.body;
+  if(!name || !status || !description) return res.status(400).json({ error: 'DATOS_INCOMPLETOS' });
+  
+  try {
+    const result = await pool.query(
+      'INSERT INTO characters (name, status, imageUrl, description) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name.toUpperCase().trim(), status.toUpperCase().trim(), imageUrl, description.trim()]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'ERROR_AL_CREAR_PERSONAJE' });
+  }
+});
+
+// --- RUTAS DE MONSTRUOS (MONSTERS) ---
+
+// Obtener todos los monstruos
+app.get('/api/monsters', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM monsters ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'ERROR_AL_OBTENER_MONSTRUOS' });
+  }
+});
+
+// Crear un monstruo nuevo
+app.post('/api/monsters', async (req, res) => {
+  const { name, dangerLevel, imageUrl, description } = req.body;
+  if(!name || !dangerLevel || !description) return res.status(400).json({ error: 'DATOS_INCOMPLETOS' });
+  
+  try {
+    const result = await pool.query(
+      'INSERT INTO monsters (name, dangerLevel, imageUrl, description) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name.toUpperCase().trim(), dangerLevel.toUpperCase().trim(), imageUrl, description.trim()]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'ERROR_AL_CREAR_MONSTRUO' });
   }
 });
 
