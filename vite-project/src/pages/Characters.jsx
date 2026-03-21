@@ -28,12 +28,11 @@ const Characters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // usamos image porque asi se renombro en tu sql
       await axios.post(API_URL, {
         name: name.toUpperCase(),
         status: status.toUpperCase(),
         description: description,
-        image: imageurl
+        image: imageurl // Coincide con ALTER TABLE characters ADD COLUMN image
       });
       setName(''); setStatus(''); setImageurl(''); setDescription('');
       setShowForm(false);
@@ -47,7 +46,7 @@ const Characters = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-black text-white font-mono">
-      <img src={charactersBg} className="fixed inset-0 w-full h-full object-cover opacity-60 z-0" />
+      <img src={charactersBg} className="fixed inset-0 w-full h-full object-cover opacity-60 z-0" alt="background" />
       <div className="fixed top-0 left-0 w-full bg-black/60 z-[100] border-b border-zinc-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
         <nav className="flex gap-6">
           <Link to="/characters" className="text-white font-bold uppercase tracking-widest text-sm p-1 border-b-2 border-white"> [ characters ] </Link>

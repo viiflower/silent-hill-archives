@@ -28,13 +28,12 @@ const Monsters = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // incluimos encounter_location porque tu sql no permite que sea nulo
       await axios.post(API_URL, {
         name: name.toUpperCase(),
-        danger: dangerlevel.toUpperCase(),
-        description: description,
+        danger: dangerlevel.toUpperCase(), // RENAME danger_level TO danger 
+        description: description,           // RENAME notes TO description 
         image: imageurl,
-        encounter_location: "UNKNOWN"
+        encounter_location: "UNKNOWN_AREA"   // Campo obligatorio en tabla monsters 
       });
       setName(''); setDangerlevel(''); setImageurl(''); setDescription('');
       setShowForm(false);
@@ -48,7 +47,7 @@ const Monsters = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-black text-white font-mono">
-      <img src={monstersBg} className="fixed inset-0 w-full h-full object-cover opacity-60 z-0 grayscale brightness-50" />
+      <img src={monstersBg} className="fixed inset-0 w-full h-full object-cover opacity-60 z-0 grayscale brightness-50" alt="background" />
       <div className="fixed top-0 left-0 w-full bg-black/60 z-[100] border-b border-zinc-900 px-6 py-3 flex justify-between items-center backdrop-blur-md">
         <nav className="flex gap-6">
           <Link to="/characters" className="text-white/70 hover:text-white transition-colors uppercase tracking-widest text-sm p-1 border-b-2 border-transparent"> [ characters ] </Link>
