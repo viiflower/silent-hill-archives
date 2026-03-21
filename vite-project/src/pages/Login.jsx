@@ -16,28 +16,23 @@ const Login = () => {
     const endpoint = isRegistering ? '/api/register' : '/api/login';
     
     try {
-      // Limpiamos el nombre: Todo a MAYÚSCULAS y sin espacios
-      const finalUser = username.toUpperCase().trim();
-
+      const userUpper = username.toUpperCase().trim();
       const response = await axios.post(`${API_URL}${endpoint}`, {
-        username: finalUser, 
+        username: userUpper, 
         password: password
       });
       
       if (response.status === 200 || response.status === 201) {
         if (isRegistering) {
-          alert("REGISTRO EXITOSO: YA PUEDES ENTRAR");
+          alert("REGISTRO EXITOSO");
           setIsRegistering(false);
-          setUsername('');
-          setPassword('');
         } else {
-          localStorage.setItem('user', finalUser);
+          localStorage.setItem('user', userUpper);
           navigate('/characters');
         }
       }
     } catch (error) {
-      // Capturamos el error 500 para saber si el usuario ya existe
-      const msg = error.response?.data?.error || "ERROR_DE_SISTEMA";
+      const msg = error.response?.data?.error || "FALLO_DE_SISTEMA";
       alert(`AVISO: ${msg}`);
     }
   };
@@ -58,8 +53,7 @@ const Login = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              /* LETRA NEGRA, FONDO BLANCO Y SIN FORZAR MAYÚSCULAS VISUALES */
-              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:ring-2 focus:ring-red-900"
+              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none"
               placeholder="ENTER_NAME"
               required
             />
@@ -71,8 +65,7 @@ const Login = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              /* LETRA NEGRA Y FONDO BLANCO */
-              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none focus:ring-2 focus:ring-red-900"
+              className="bg-white border-2 border-zinc-900 p-3 text-black font-bold outline-none"
               placeholder="********"
               required
             />
